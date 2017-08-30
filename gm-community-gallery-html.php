@@ -48,12 +48,20 @@ class gm_community_gallery_html
         $error_name    = $this->set_error('gm_error_name');
         $error_email   = $this->set_error('gm_error_email');
         $error_image   = $this->set_error('gm_error_image');
+        $error_title   = $this->set_error('gm_error_title');
         $error_message = $this->set_error('gm_error_message');
 
         $value_name    = $this->set_input_value('gm_value_name');
         $value_email   = $this->set_input_value('gm_value_email');
         $value_image   = $this->set_input_value('gm_value_company');
+        $value_title   = $this->set_input_value('gm_value_titlte');
         $value_message = $this->set_input_value('gm_value_message');
+
+        /* This is just used for testing.
+        echo '<pre>';
+        print_r($_SESSION);
+        echo '</pre>';
+        */
 
         $form = "<form id='gm-gallery' method='post' action='$form_action' enctype='multipart/form-data'>
                     <label for='name'>Your Name <span class='gm-asterisk'>*</span> $error_name </label>
@@ -61,6 +69,9 @@ class gm_community_gallery_html
         
                     <label for='email'>Your Email <span class='asterisk'>*</span> $error_email </label>
                     <input name='email' value='$value_email' type='text'>
+                    
+                    <label for='title'>Title <span class='asterisk'>*</span> $error_title </label>
+                    <input name='title' value='$value_title' type='text'>
                     
                     <label for='image'>Image <span class='asterisk'>* </span> $error_image </label>
                     <input name='image' value='$value_image' type='file'>
