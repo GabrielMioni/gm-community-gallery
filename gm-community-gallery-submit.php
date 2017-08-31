@@ -1,7 +1,14 @@
 <?php
 
-require_once('php/gm-id-builder.php');
+/**
+ * @package     GM-Community-Gallery
+ * @author      Gabriel Mioni <gabriel@gabrielmioni.com>
+ */
 
+/**
+ * Tries to upload the image submitted in the image upload form (created in gm-community-gallery-html.php), and insert
+ * data in the gm_community_gallery MySQL table
+ */
 class gm_community_gallery_submit
 {
     /** @var bool|null  flag for whether the honeypot input is empty. */
@@ -31,7 +38,6 @@ class gm_community_gallery_submit
         $this->input_data['email']   = $this->check_email('email', $this->errors);
         $this->input_data['message'] = $this->check_text('message', $this->errors);
         $this->input_data['title']   = $this->check_text('title', $this->errors);
-//        $this->input_data['image']   = $this->get_image_name($this->image_index);
 
         $this->check_image($this->image_index, $this->errors);
 
@@ -79,10 +85,10 @@ class gm_community_gallery_submit
             return '';
         }
 
-        /* Clean the email input */
+        // Clean the email input
         $email = filter_var($email_input, FILTER_SANITIZE_EMAIL);
 
-        /* Validate email */
+        // Validate email
         $validate = filter_var($email, FILTER_VALIDATE_EMAIL);
 
         if ($validate === false)
@@ -204,7 +210,15 @@ class gm_community_gallery_submit
         return $error_msgs;
     }
 
-    protected function try_upload(&$error_messages, array &$input_data)
+    /**
+     * Try to upload the image and update the gm_community_gallery MySQL table.
+     *
+     * @param   array   $error_messages     Array holding previous error messages. If either the upload or MySQL insert fails
+     *                                      this array will be modified by reference.
+     * @param   array   $input_data         Text $_POST values from the image upload form. Passed to $this->update_gm_community_gallery_table()
+     * @return  bool    On success, returns true. On failure, returns false.
+     */
+    protected function try_upload(array &$error_messages, array &$input_data)
     {
         if (!empty($error_messages))
         {
@@ -236,6 +250,13 @@ class gm_community_gallery_submit
         return true;
     }
 
+    /**
+     * Updates the gm_community_gallery MySQL table using $wpdb->insert().
+     *
+     * @param   $image_id   string          The unique id created by the gm_community_gallery_upload object.
+     * @param   array       $input_data     Array of $_POST text values. Passed to $wpdb->insert().
+     * @return  bool                        On success return true. On failure return false.
+     */
     protected function update_gm_community_gallery_table($image_id, array &$input_data)
     {
         $table_name = GM_GALLERY_TABLENAME;
@@ -249,7 +270,11 @@ class gm_community_gallery_submit
 
         $sql_error = $wpdb->last_error;
 
-        $_SESSION['error'] = $sql_error;
+        if ($sql_error !== '')
+        {
+            error_log($sql_error);
+            $_SESSION['generic'] = 'There was a problem uploading your image. Please try again later.';
+        }
 
         if ($sql_error === '')
         {
