@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * @package     GM-Community-Gallery
+ * @author      Gabriel Mioni <gabriel@gabrielmioni.com>
+ */
+
+/**
+ * Creates an alphabetic id that's used to both name uploaded files placed in the wp-content/uploads/gm-community-gallery
+ * directory and serve as the primary key in the gm_community_gallery MySQL table.
+ *
+ * The id characters will be upper/lowercase alphabets equal in length to the value of $id_length. Before returning the
+ * id, the class checks to make sure the id is unique.
+ */
 class gm_id_builder
 {
     /** @var string */
@@ -19,7 +31,14 @@ class gm_id_builder
         $this->generated_id = $this->set_id($id_length, $this->alph_array);
     }
 
-    protected function set_id($id_length, $alph_array)
+    /**
+     * Tries to create a unique random ID. If one can't be created in less than 100 attempts, returns false.
+     *
+     * @param   $id_length  int             The length the ID should be.
+     * @param   array       $alph_array     The array of upper/lowercase alphabets set in the __constructor
+     * @return  bool|string     On failure, returns false. On success returns new unique id.
+     */
+    protected function set_id($id_length, array $alph_array)
     {
         $table_name = GM_GALLERY_TABLENAME;
 
@@ -53,6 +72,8 @@ class gm_id_builder
     }
 
     /**
+     * Build a random id with upper/lowercase alphabets.
+     *
      * @param   $id_length    int     The requested length that $this->generated_id should be.
      * @param   array $alph_array     The array of upper/lowecase alphabets set in the __constructor
      * @return  string                The generated id.
