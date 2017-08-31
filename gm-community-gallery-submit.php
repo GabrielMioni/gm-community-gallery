@@ -1,5 +1,7 @@
 <?php
 
+require_once('php/gm-id-builder.php');
+
 class gm_community_gallery_submit
 {
     /** @var bool|null  flag for whether the honeypot input is empty. */
@@ -28,12 +30,14 @@ class gm_community_gallery_submit
         $this->input_data['name']    = $this->check_text('name', $this->errors);
         $this->input_data['email']   = $this->check_email('email', $this->errors);
         $this->input_data['message'] = $this->check_text('message', $this->errors);
+        $this->input_data['title']   = $this->check_text('title', $this->errors);
+//        $this->input_data['image']   = $this->get_image_name($this->image_index);
 
         $this->check_image($this->image_index, $this->errors);
 
         $this->error_msgs = $this->build_error_msgs($this->errors);
 
-        $this->try_upload($this->error_msgs, $this->image_index);
+        $this->try_upload($this->error_msgs, $this->input_data);
 
         $this->non_ajax_processing($this->is_ajax, $this->error_msgs, $this->input_data);
     }
@@ -87,6 +91,26 @@ class gm_community_gallery_submit
         }
 
         return $email;
+    }
+
+    /**
+     * Retrieve the file name submitted.
+     *
+     * @param $image_index
+     * @return string
+     */
+    protected function get_image_name($image_index)
+    {
+        if (isset($_FILES[$image_index]))
+        {
+            $file = $_FILES[$image_index];
+
+            $file_name = $file['name'];
+
+            return strip_tags($file_name);
+        }
+
+        return '';
     }
 
     /**
@@ -180,7 +204,7 @@ class gm_community_gallery_submit
         return $error_msgs;
     }
 
-    protected function try_upload(&$error_messages, $image_index)
+    protected function try_upload(&$error_messages, array &$input_data)
     {
         if (!empty($error_messages))
         {
@@ -191,13 +215,49 @@ class gm_community_gallery_submit
         require_once('gm-community-gallery-upload.php');
 
         $upload = new gm_community_gallery_upload();
-        $upload_result = $upload->return_upload_flag();
+        $image_id = $upload->return_upload_flag();
 
-        if ($upload_result === false)
+        if ($image_id === false)
         {
-            $error_messages[$image_index] = 'There was a problem uploading your file. Please try again later';
+            $error_messages['generic'] = 'There was a problem uploading your file. Please try again later';
             return false;
         }
+
+        // There was no error uploading the image or any validation errors for the field inputs!
+
+        $update = $this->update_gm_community_gallery_table($image_id, $input_data);
+
+        if ($update === false)
+        {
+            $error_messages['generic'] = 'There was a problem uploading your file. Please try again later';
+            return false;
+        }
+
+        return true;
+    }
+
+    protected function update_gm_community_gallery_table($image_id, array &$input_data)
+    {
+        $table_name = GM_GALLERY_TABLENAME;
+
+        // Add the new $image_id variable to the array
+        $input_data['id'] = $image_id;
+
+        global $wpdb;
+
+        $wpdb->insert($table_name, $input_data);
+
+        $sql_error = $wpdb->last_error;
+
+        $_SESSION['error'] = $sql_error;
+
+        if ($sql_error === '')
+        {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**
