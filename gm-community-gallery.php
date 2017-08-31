@@ -31,8 +31,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * @author      Gabriel Mioni <gabriel@gabrielmioni.com>
  */
 
-// Plugin version, bump it up if you update the plugin
 define( 'GM_GALLERY_VERSION', '1.0' );
+
+define( 'GM_GALLERY_TABLENAME', gm_gallery_define_tablename());
+function gm_gallery_define_tablename()
+{
+    global $wpdb;
+
+    $table_prefix = $wpdb->prefix;
+
+    if (trim($table_prefix) === '')
+    {
+        $table_prefix = 'wp_';
+    }
+
+    $tablename = $table_prefix . 'gm_community_gallery';
+    return $tablename;
+}
 
 /* ********************************
  * - Activate GM Community Gallery
@@ -42,6 +57,7 @@ register_activation_hook( __FILE__, 'gm_community_gallery_activated' );
 function gm_community_gallery_activated()
 {
     gm_gallery_create_directories();
+    gm_gallery_create_sql_db();
 }
 
 /* ******************************************************
@@ -61,6 +77,29 @@ function gm_gallery_create_directories()
     wp_mkdir_p($gm_images);
 }
 
+
+/* ******************************************************
+ * - Create the gm_community_gallery SQL db
+ * ******************************************************/
+
+function gm_gallery_create_sql_db()
+{
+    $tablename = GM_GALLERY_TABLENAME;
+    $create_table =
+        "CREATE TABLE $tablename (
+            id CHAR(6) PRIMARY KEY NOT NULL,
+            type CHAR(4),
+            email VARCHAR(100),
+            ip VARCHAR(10),
+            name VARCHAR(100),
+            title VARCHAR(200),
+            message VARCHAR(600)
+        );";
+
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+
+    dbDelta($create_table);
+}
 
 /* *******************************
  * - Register CSS
