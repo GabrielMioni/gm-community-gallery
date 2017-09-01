@@ -6,18 +6,20 @@
  */
 
 /**
- * Creates an alphabetic id that's used to both name uploaded files placed in the wp-content/uploads/gm-community-gallery
+ * Creates an alphanumeric id that's used to both name uploaded files placed in the wp-content/uploads/gm-community-gallery
  * directory and serve as the primary key in the gm_community_gallery MySQL table.
  *
- * The id characters will be upper/lowercase alphabets equal in length to the value of $id_length. Before returning the
- * id, the class checks to make sure the id is unique.
+ * The id characters will may be upper/lowercase alphabets and/or numbers (probably each). The ID will be equal in length
+ * to the value of $id_length. Before returning the id, the class checks to make sure the id is unique.
  */
 class gm_id_builder
 {
     /** @var string */
-    protected $alphabets = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    protected $alpha_numbers = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
     /** @var array Holds the array of uppercase and lowercase alphabets in an array */
-    protected $alph_array;
+    protected $alph_array = array();
+
     /** @var string The array that will be output */
     protected $generated_id;
 
@@ -26,7 +28,7 @@ class gm_id_builder
      */
     public function __construct($id_length)
     {
-        $this->alph_array = str_split($this->alphabets, 1);
+        $this->alph_array = str_split($this->alpha_numbers, 1);
 
         $this->generated_id = $this->set_id($id_length, $this->alph_array);
     }
