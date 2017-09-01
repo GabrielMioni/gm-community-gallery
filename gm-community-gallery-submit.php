@@ -6,8 +6,11 @@
  */
 
 /**
- * Tries to upload the image submitted in the image upload form (created in gm-community-gallery-html.php), and insert
- * data in the gm_community_gallery MySQL table
+ * Validates both text inputs and the uploaded image. If everything is good, update the gm_community_gallery MySQL table,
+ * and use WordPress's image library to move/resize images to the 'thumbs' and 'images' directories in
+ * uploads/gm-community-gallery
+ *
+ * By default, .jpeg and .png files are converted to .jpg.
  */
 class gm_community_gallery_submit
 {
@@ -104,6 +107,7 @@ class gm_community_gallery_submit
      *
      * @param $image_index
      * @return string
+     * @deprecated Ain't no one got time for that.
      */
     protected function get_image_name($image_index)
     {
@@ -129,6 +133,7 @@ class gm_community_gallery_submit
      */
     protected function check_image($image_index, array &$error_array)
     {
+        // Make sure $_FILES were submitted
         if (empty($_FILES))
         {
             $error_array[$image_index] = -2;
@@ -142,22 +147,38 @@ class gm_community_gallery_submit
             return false;
         }
 
-        // Check the MIME type
+        // Set the $_FILE element being checked
         $file = $_FILES[$image_index];
+        $temp_location = $file['tmp_name'];
+        $file_name     = $file['name'];
 
-        $file_name = $file['tmp_name'];
-
-        if (!file_exists($file_name))
+        // Make sure the tmp file exists
+        if (!file_exists($temp_location))
         {
             $error_array[$image_index] = -2;
             return false;
         }
 
-        $mime = mime_content_type($file_name);
-
+        // Check the MIME type provided in $_FILES
+        $mime = mime_content_type($temp_location);
         if (!in_array($mime, $this->allowed_mimes))
         {
             $error_array[$image_index] = -3;
+            return false;
+        }
+
+        // Examine the actual file name and confirm the extension is an allowed type.
+        /** @var array $short_mimes Should be like array('gif', 'jpeg', 'jpg', 'png')*/
+
+        $short_mimes = array_keys($this->allowed_mimes);
+
+        $extension = substr($file_name, strrpos($file_name, '.') + 1);
+
+        $_SESSION['ext'] = $extension;
+
+        if (!in_array($extension, $short_mimes))
+        {
+            $error_array[$image_index] = -4;
             return false;
         }
 
