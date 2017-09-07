@@ -1,5 +1,7 @@
 <?php
 
+namespace GM_community_gallery\submit;
+
 /**
  * @package     GM-Community-Gallery
  * @author      Gabriel Mioni <gabriel@gabrielmioni.com>
@@ -8,11 +10,11 @@
 /**
  * Validates both text inputs and the uploaded image. If everything is good, update the gm_community_gallery MySQL table,
  * and use WordPress's image library to move/resize images to the 'thumbs' and 'images' directories in
- * uploads/gm-community-gallery
+ * uploads/gm-community-submit
  *
  * By default, .jpeg and .png files are converted to .jpg.
  */
-class gm_community_gallery_submit
+class image_upload_process
 {
     /** @var bool|null  flag for whether the honeypot input is empty. */
     protected $honey_pot_is_empty = null;
@@ -247,9 +249,9 @@ class gm_community_gallery_submit
         }
 
         // Try to stage and upload the image
-        require_once('gm-community-gallery-upload.php');
+        require_once('class.uploader.php');
 
-        $upload = new gm_community_gallery_upload();
+        $upload = new uploader();
         $image_id = $upload->return_upload_flag();
 
         if ($image_id === false)

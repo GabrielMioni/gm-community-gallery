@@ -1,15 +1,17 @@
 <?php
 
+namespace GM_community_gallery\submit;
+
 /**
  * Stage an uploaded image and then resize and store images in the 'images' and 'thumbs' directories at
- * wp-content/uploads/gm-community-gallery/ .
+ * wp-content/uploads/gm-community-submit/ .
  *
- * Allowed MIME types are .jpg/.jpeg, .png and .gif. By default, .png images are converted to .jpg
+ * Allowed MIME types are .jpg/.jpeg, .png and .gif. By default, .jpeg/.png images are converted to .jpg
  *
  * During the upload, a unique 6 digit alphabetic ID is created. If the upload is successful, $this->upload_flag is
  * set to the new ID's value. If the upload fails, $this->upload_flag will be false.
  */
-class gm_community_gallery_upload
+class uploader
 {
     /** @var bool|string  */
     protected $upload_flag;
@@ -26,7 +28,7 @@ class gm_community_gallery_upload
     }
 
     /**
-     * Temporarily stages the uploaded image and saves re-sized copies in gm-community-gallery subdirectories (thumbs and images)
+     * Temporarily stages the uploaded image and saves re-sized copies in gm-community-submit subdirectories (thumbs and images)
      *
      * @param   $image_index  string    The index used to specify the $_FILE element for the image being uploaded.
      * @return  bool|string
@@ -46,10 +48,9 @@ class gm_community_gallery_upload
             return false;
         }
 
-        // Stage the image
         $file = $_FILES[$image_index];
 
-        //
+        // Stage the image
         $staged_image = $this->stage_image($file);
 
         if (!is_wp_error($staged_image))
@@ -78,14 +79,14 @@ class gm_community_gallery_upload
      */
     protected function get_new_id()
     {
-        require_once('php/gm-id-builder.php');
+        require_once('class.id_builder.php');
 
-        $build_id = new gm_id_builder(6);
+        $build_id = new id_builder(6);
         return $build_id->return_id();
     }
 
     /**
-     * Temporarily modifies the upload location WordPress uses to stage an uploaded image at wp-content/uploads/gm-community-gallery
+     * Temporarily modifies the upload location WordPress uses to stage an uploaded image at wp-content/uploads/gm-community-submit
      * 
      * Once the image is staged, convert to .jpg if necessary.
      * 
@@ -97,13 +98,13 @@ class gm_community_gallery_upload
     {
         if ( ! function_exists('wp_handle_upload') )
         {
-            require_once( ABSPATH . 'wp-admin/includes/file.php' );
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
         }
 
         $allowed_mimes = array('jpg' =>'image/jpg','jpeg' =>'image/jpeg', 'gif' => 'image/gif', 'png' => 'image/png');
         $upload_overrides = array( 'test_form' => false, 'mimes' => $allowed_mimes );
 
-        // Temporarily set upload directory to wp-content/uploads/gm-community-gallery/
+        // Temporarily set upload directory to wp-content/uploads/gm-community-submit/
         add_action('upload_dir', array( &$this, 'set_to_gm_community_gallery_directory'));
         $handle = wp_handle_upload($file, $upload_overrides);
 
@@ -188,16 +189,16 @@ class gm_community_gallery_upload
     function set_to_gm_community_gallery_directory($dir)
     {
         return array(
-                'path'   => $dir['basedir'] . '/gm-community-gallery',
-                'url'    => $dir['baseurl'] . '/gm-community-gallery',
-                'subdir' => '/gm-community-gallery',
+                'path'   => $dir['basedir'] . '/gm-community-submit',
+                'url'    => $dir['baseurl'] . '/gm-community-submit',
+                'subdir' => '/gm-community-submit',
             ) + $dir;
     }
 
     /**
-     * Re-sizes image if necessary and saves the image in a subdirectory of /uploads/gm-community-gallery
+     * Re-sizes image if necessary and saves the image in a subdirectory of /uploads/gm-community-submit
      *
-     * @param $save_dir         string  The subdirectory of /uploads/gm-community-gallery/ where the image is saved.
+     * @param $save_dir         string  The subdirectory of /uploads/gm-community-submit/ where the image is saved.
      * @param $image_name       string  The name of the image file.
      * @param $staged_location  string  Where the uploaded image is temporarily staged.
      * @param $max_w            int     The px value for max width.
@@ -208,7 +209,7 @@ class gm_community_gallery_upload
     {
         $wp_uploads_dir = wp_get_upload_dir();
         $wp_uploads_dir_base = $wp_uploads_dir['basedir'];
-        $save_location = $wp_uploads_dir_base . "/gm-community-gallery/$save_dir/" . $image_name;
+        $save_location = $wp_uploads_dir_base . "/gm-community-submit/$save_dir/" . $image_name;
 
         $image_edit = wp_get_image_editor($staged_location);
 

@@ -5,14 +5,16 @@
  * @author      Gabriel Mioni <gabriel@gabrielmioni.com>
  */
 
+namespace GM_community_gallery\submit;
+
 /**
  * Builds either the HTML contact form or a thank you message. The thank you message is set if $_SESSION['gm_success']
  * is set. Else, the contact form is set.
  *
  * Class gm_community_gallery_html is called in the gm_gallery_form_shortcode() function and displayed using the WordPress short code
- * [gm-gallery-form][/gm-gallery-form]
+ * [gm-submit-form][/gm-submit-form]
  */
-class gm_community_gallery_html
+class image_upload_form
 {
     /** @var    string  Holds HTML for either the contact form or a thank you message. */
     protected $html;
@@ -63,7 +65,7 @@ class gm_community_gallery_html
         echo '</pre>';
         */
 
-        $form = "<form id='gm-gallery' method='post' action='$form_action' enctype='multipart/form-data'>
+        $form = "<form id='gm-submit' method='post' action='$form_action' enctype='multipart/form-data'>
                     <label for='name'>Your Name <span class='gm-asterisk'>*</span> $error_name </label>
                     <input name='name' value='$value_name' type='text'>
         

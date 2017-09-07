@@ -5,14 +5,16 @@
  * @author      Gabriel Mioni <gabriel@gabrielmioni.com>
  */
 
+namespace GM_community_gallery\submit;
+
 /**
- * Creates an alphanumeric id that's used to both name uploaded files placed in the wp-content/uploads/gm-community-gallery
+ * Creates an alphanumeric id that's used to both name uploaded files placed in the wp-content/uploads/gm-community-submit
  * directory and serve as the primary key in the gm_community_gallery MySQL table.
  *
  * The id characters will may be upper/lowercase alphabets and/or numbers (probably each). The ID will be equal in length
  * to the value of $id_length. Before returning the id, the class checks to make sure the id is unique.
  */
-class gm_id_builder
+class id_builder
 {
     /** @var string */
     protected $alpha_numbers = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
