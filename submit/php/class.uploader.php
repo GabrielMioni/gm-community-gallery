@@ -189,9 +189,9 @@ class uploader
     function set_to_gm_community_gallery_directory($dir)
     {
         return array(
-                'path'   => $dir['basedir'] . '/gm-community-submit',
-                'url'    => $dir['baseurl'] . '/gm-community-submit',
-                'subdir' => '/gm-community-submit',
+                'path'   => $dir['basedir'] . '/gm-community-gallery',
+                'url'    => $dir['baseurl'] . '/gm-community-gallery',
+                'subdir' => '/gm-community-gallery',
             ) + $dir;
     }
 
@@ -209,7 +209,7 @@ class uploader
     {
         $wp_uploads_dir = wp_get_upload_dir();
         $wp_uploads_dir_base = $wp_uploads_dir['basedir'];
-        $save_location = $wp_uploads_dir_base . "/gm-community-submit/$save_dir/" . $image_name;
+        $save_location = $wp_uploads_dir_base . "/gm-community-gallery/$save_dir/" . $image_name;
 
         $image_edit = wp_get_image_editor($staged_location);
 
