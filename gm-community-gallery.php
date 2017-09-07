@@ -115,7 +115,7 @@ function gm_gallery_create_sql_db()
 add_action( 'wp_enqueue_scripts', 'gm_register_gallery_css' );
 function gm_register_gallery_css()
 {
-    wp_register_style( 'gm-submit-css', plugins_url( '/css/gm-submit.css', __FILE__ ), array(), GM_GALLERY_VERSION, 'all' );
+    wp_register_style( 'gm-gallery-css', plugins_url( 'submit/css/gm-gallery.css', __FILE__ ), array(), GM_GALLERY_VERSION, 'all' );
 }
 
 /* *******************************
@@ -128,7 +128,7 @@ function gm_gallery_form_shortcode()
     require_once('submit/php/class.image_upload_form.php');
 
     // Add the gm-contact.css file
-    wp_enqueue_style('gm-submit-css');
+    wp_enqueue_style('gm-gallery-css');
 
     $auto_p_flag = false;
 

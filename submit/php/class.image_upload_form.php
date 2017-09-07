@@ -65,7 +65,7 @@ class image_upload_form
         echo '</pre>';
         */
 
-        $form = "<form id='gm-submit' method='post' action='$form_action' enctype='multipart/form-data'>
+        $form = "<form id='gm-gallery' method='post' action='$form_action' enctype='multipart/form-data'>
                     <label for='name'>Your Name <span class='gm-asterisk'>*</span> $error_name </label>
                     <input name='name' value='$value_name' type='text'>
         
