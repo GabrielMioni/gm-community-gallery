@@ -1,0 +1,112 @@
+#gm_settings_gallery {
+/*    position: absolute; */
+}
+
+.image_card {
+/*    background-color: #ffe0b2; */
+    display: inline-block;
+    margin-right: 5px;
+    margin-top: 5px;
+    min-height: 280px;
+    padding: 5px;
+    vertical-align: top;
+}
+
+.image_card img {
+    max-height: 200px;
+    max-width: 300px;
+    overflow-y: hidden;
+}
+
+.image_frame {
+    display: block;
+    height: 100%;
+    left: 0;
+    position: relative;
+    text-align: center;
+    top: 0;
+    width: 100%;
+}
+
+.image_frame > a {
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+.image_frame > a:hover {
+    background-color: rgba(255,255,255, .4);
+    -webkit-transition: background-color 250ms;
+    -ms-transition: background-color 250ms;
+    transition: background-color 250ms;
+}
+
+/*
+ Edit Page
+ */
+
+.wrap #image_edit_card {
+    position: relative;
+}
+
+#image_edit_card #image_thumb {
+    padding-right: 20px;
+}
+
+#image_thumb img {
+    max-width: 500px;
+}
+
+#image_edit_card #image_thumb,
+#image_edit_card #form_wrapper {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.wrap #image_edit_card .form-table td,
+.wrap #image_edit_card .form-table th {
+    padding: 0;
+}
+
+#form_wrapper label,
+#form_wrapper input[type='text'],
+#form_wrapper textarea {
+    display: block;
+}
+
+#form_wrapper textarea {
+    height: 100px;
+    min-width: 100%;
+}
+
+#gm_image_submit {
+    float: right;
+}
+
+#gm_image_delete {
+    background-color: red;
+    border-color: #B51806;
+    box-shadow: 0 1px #B51806;
+    color: white;
+    text-shadow: 0 -1px 1px #B51806;
+    float: left;
+}
+
+#gm_image_delete:hover {
+    background-color: crimson;
+}
+
+#response {
+    font-size: 20px;
+    padding: 10px;
+}
+
+@media screen and (max-width: 800px) {
+    .image_card img {
+        max-height: none;
+        max-width: 100%;
+        overflow-y: hidden;
+    }
+}
