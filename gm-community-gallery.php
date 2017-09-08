@@ -187,10 +187,24 @@ function gm_community_options()
 
     } else {
 
-        require_once('admin/php/class.admin_gallery_build.php');
+        require_once('admin/php/class.admin_navigate.php');
+        require_once('admin/php/class.admin_gallery.php');
+        require_once('nav/class.pagination.php');
 
-        $build_admin_gallery = new GM_community_gallery\admin\admin_gallery_build();
-        echo $build_admin_gallery->return_admin_gallery_html();
+        // Build the navigate object
+        $admin_navigate = new GM_community_gallery\admin\admin_navigate();
+
+        // Build gallery
+        $admin_gallery  = new GM_community_gallery\admin\admin_gallery($admin_navigate);
+        $html_gallery = $admin_gallery->return_gallery_html();
+
+        // Build pagination
+        $admin_pagination = new pagination($admin_navigate);
+        $html_pagination = $admin_pagination->return_pagination_html();
+
+        // Display pagination and gallery
+        echo $html_pagination;
+        echo $html_gallery;
     }
 
     echo '</div>';
