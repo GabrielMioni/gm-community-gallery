@@ -120,6 +120,8 @@ class admin_navigate extends navigate
             $query .= $where;
         }
 
+        $query .= ' ORDER BY created';
+
         // Add a LIMIT to the query if the query is looking for column values and not a row count.
         if ($is_count === false)
         {
@@ -129,7 +131,6 @@ class admin_navigate extends navigate
             $query_data[] = $limit_values[0];
             $query_data[] = $limit_values[1];
         }
-
 
         $tmp = array();
         $tmp['query'] = $query;
