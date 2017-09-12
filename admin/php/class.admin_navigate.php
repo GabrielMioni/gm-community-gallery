@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @package     GM-Community-Gallery
+ * @author      Gabriel Mioni <gabriel@gabrielmioni.com>
+ */
+
 namespace GM_community_gallery\admin;
 
 require_once(GM_GALLERY_DIR . 'nav/abstract.navigate.php');
@@ -19,6 +24,10 @@ class admin_navigate extends navigate
     public function __construct()
     {
         $this->input_array['paginate'] = $this->check_post_or_get_for_value('paginate');
+        $this->input_array['name']     = $this->check_post_or_get_for_value('name');
+        $this->input_array['title']    = $this->check_post_or_get_for_value('title');
+        $this->input_array['email']    = $this->check_post_or_get_for_value('email');
+        $this->input_array['ip']       = $this->check_post_or_get_for_value('ip');
         $this->input_array['limit']    = $this->check_post_or_get_for_value('limit');
         $this->input_array['date']     = $this->check_input_array_elements('date', 2);
         $this->input_array['tags']     = $this->check_input_array_elements('tags');
@@ -34,108 +43,51 @@ class admin_navigate extends navigate
      */
     public function build_query_and_args($is_count = false)
     {
+        $table_name = GM_GALLERY_TABLENAME;
         $input_array = $this->input_array;
 
+        $title = $input_array['title'];
+        $name  = $input_array['name'];
+        $email = $input_array['email'];
+        $ip    = $input_array['ip'];
         $page  = $input_array['paginate'];
         $limit = $input_array['limit'];
         $date  = $input_array['date'];
-        $tag   = $input_array['tags'];
+        $tags  = $input_array['tags'];
 
-        $table_name = GM_GALLERY_TABLENAME;
-
-        /** @var $query string  Hold the prepared statement query */
         $query = '';
+        $args  = array();
 
-        /** @var $query_data array  Holds data that will be passed to the WordPress MySQL prepare statement */
-        $query_data = array();
-
-        switch ($is_count)
+        if ($is_count)
         {
-            case true:
-                $query .= "SELECT COUNT(*) FROM $table_name ";
-                break;
-            default:
-                $query .= "SELECT * FROM $table_name ";
-                break;
+            $query .= "SELECT COUNT(*) FROM $table_name ";
+        } else {
+            $query .= "SELECT * FROM $table_name ";
         }
 
-        // Set the 'WHERE' portion, but wait to see if it's needed before adding it to the query.
-        $where = 'WHERE ';
+        $where_query = '';
 
-        // Set create_date queries if necessary.
-        if (is_array($date))
-        {
-            $date_count = count($date);
+        $this->append_query_input('name', $name, $where_query, $args);
+        $this->append_query_input('title', $title, $where_query, $args);
+        $this->append_query_input('email', $email, $where_query, $args);
+        $this->append_query_input('ip', $ip, $where_query, $args);
 
-            switch ($date_count)
-            {
-                case 1:
-                    $where .= ' create_date = %s';
-                    break;
-                case 2:
-                    $where .= ' create_date > %s AND create_date < %s';
-                    break;
-                default:
-                    break;
-            }
+        $this->append_query_tags($tags, $where_query, $args);
 
-            $this->sort_date($date);
+        $this->append_query_date($date, $where_query, $args);
 
-            // Format the dates requested for MySQL
-            foreach ($date as $value)
-            {
-                $query_data[] = date('Y-m-d H:i:s', strtotime($value));
-            }
-        }
-
-        if ($where !== 'WHERE ' && !empty($tag))
-        {
-            $where .= ' AND ';
-        }
-
-        if (!empty($tag))
-        {
-            $tags_query = '';
-
-            foreach ($tag as $value)
-            {
-                $tags_query .= "tags LIKE %s OR ";
-                $query_data[] = $value;
-            }
-
-            $straggle_or  = ' OR ';
-            $pos_or  = strrpos($tags_query, $straggle_or);
-
-            if ($pos_or !== false)
-            {
-                $tags_query = substr_replace($tags_query, '', $pos_or, strlen($straggle_or));
-            }
-
-            $where .= $tags_query;
-        }
-
-        // If any content was added to $where, appended it to $query
-        if ($where !== 'WHERE ')
-        {
-            $query .= $where;
-        }
+        $this->append_query_where($query, $where_query);
 
         $query .= ' ORDER BY created';
 
-        // Add a LIMIT to the query if the query is looking for column values and not a row count.
-        if ($is_count === false)
-        {
-            $limit_values = $this->calculate_limit_start_stop($page, $limit);
-
-            $query .= ' LIMIT %d, %d';
-            $query_data[] = $limit_values[0];
-            $query_data[] = $limit_values[1];
-        }
+        $this->append_query_limit($is_count, $page, $limit, $query, $args);
 
         $tmp = array();
         $tmp['query'] = $query;
-        $tmp['args'] = $query_data;
+        $tmp['args']  = $args;
 
         return $tmp;
+
     }
+
 }
