@@ -59,10 +59,10 @@ class admin_gallery extends gallery
      */
     protected function build_settings_image_card($image_data)
     {
-        $id = strip_tags($image_data['id']);
-        $title = strip_tags($image_data['title']);
-        $created = date('m/d/Y g:ia', strtotime(strip_tags($image_data['created'])));
-        $submitter = strip_tags($image_data['name']);
+        $id = $this->set_value($image_data['id']);
+        $title = $this->set_value($image_data['title']);
+        $created = date('m/d/Y g:ia', strtotime( $this->set_value($image_data['created']) ) );
+        $submitter = $this->set_value($image_data['name']);
 
         $image_file  = $id . '.jpg';
         $gallery_url = $this->get_gallery_url();
@@ -86,6 +86,18 @@ class admin_gallery extends gallery
 
         // and this is the well.
         return $div;
+    }
+
+    /**
+     * Returns $value with slashes stripped (slashes are used as escape characters in the MySQL table) and
+     * html entities() applied.
+     *
+     * @param   $value  string  The string we want processed.
+     * @return          string  $value with slashes stripped and characters converted to HTML entities.
+     */
+    protected function set_value($value)
+    {
+        return htmlentities( stripslashes($value), ENT_QUOTES );
     }
 
 }
