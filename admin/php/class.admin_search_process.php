@@ -1,14 +1,30 @@
 <?php
 
+/**
+ * @package     GM-Community-Gallery
+ * @author      Gabriel Mioni <gabriel@gabrielmioni.com>
+ */
+
 namespace GM_community_gallery\admin;
 
 require_once(GM_GALLERY_DIR . '/nav/abstract.collect_input.php');
 
+/**
+ * Accepts $_POST data from the admin search form created in class.admin_search_form.php and organizes
+ * the data into a URL query string that is passed back to the admin gallery screen.
+ *
+ * @package GM_community_gallery\admin
+ * @see class admin_search_form
+ */
 class admin_search_process
 {
+    /** @var array Holds input data from the admin search form */
     protected $input_array;
+
+    /** @var array Holds dates if set in the admin search form */
     protected $date_array;
 
+    /** @var string The URL for the admin gallery with the new query string appeneded.  */
     protected $redirect;
 
     public function __construct()
@@ -26,6 +42,12 @@ class admin_search_process
         $this->do_redirect($this->redirect);
     }
 
+    /**
+     * Lookds for $_GET or $_POST data at the index specified by $index.
+     *
+     * @param   $index      string  The index being checked.
+     * @return  bool|string
+     */
     protected function check_post_or_get_for_value($index)
     {
         $value = isset($_GET[$index]) ? $_GET[$index] : null;
@@ -43,6 +65,11 @@ class admin_search_process
         return strip_tags(trim($value));
     }
 
+    /**
+     * Returns array with start / end dates if they're being searched for.
+     *
+     * @return array    If no dates are provided, returns empty array. Else returns star / end dates.
+     */
     protected function set_date_search()
     {
         $tmp = array();
@@ -62,10 +89,16 @@ class admin_search_process
         return $tmp;
     }
 
+    /**
+     * Builds a query string and appends it to the GM Community Gallery URL. Used to redirect the user.
+     *
+     * @param   array   $input_array    Array with inputs from the admin search form.
+     * @param   array   $date_array     Array with date inputs from the admin search form.
+     * @return  string
+     */
     protected function build_redirect(array $input_array, array $date_array)
     {
         $url = admin_url('admin.php?page=gm-community-gallery&');
-
 
         foreach ($input_array as $key=>$value)
         {
@@ -89,7 +122,15 @@ class admin_search_process
         return $url;
     }
 
-    protected function set_session_value(array $input_array, $date_array)
+    /**
+     * Set $_SESSION array with values that can be presented in the admin search form so the user doesn't need to
+     * re-enter them. These sessions are destroyed at admin_search_form->destroy_gm_sessions() after they're used
+     * to build the search form.
+     *
+     * @param   array   $input_array    Array with inputs from the admin search form.
+     * @param   array   $date_array     Array with date inputs from the admin search form.
+     */
+    protected function set_session_value(array $input_array, array $date_array)
     {
         foreach ($input_array as $key=>$value)
         {
