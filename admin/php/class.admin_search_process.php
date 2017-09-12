@@ -43,7 +43,7 @@ class admin_search_process
     }
 
     /**
-     * Lookds for $_GET or $_POST data at the index specified by $index.
+     * Looks for $_GET or $_POST data at the index specified by $index.
      *
      * @param   $index      string  The index being checked.
      * @return  bool|string
