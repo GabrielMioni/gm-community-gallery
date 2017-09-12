@@ -1,11 +1,27 @@
 <?php
 
+/**
+ * @package     GM-Community-Gallery
+ * @author      Gabriel Mioni <gabriel@gabrielmioni.com>
+ */
+
 namespace GM_community_gallery\admin;
 
 // use GM_community_gallery\nav\collect_input;
 
 require_once(GM_GALLERY_DIR . 'nav/abstract.collect_input.php');
 
+/**
+ * Builds HTML for the admin search form found at /wp-admin/admin.php?page=gm-community-gallery&edit=3PudKn
+ * The form action is set to index.php/gm_gallery_admin_search=1 - This triggers the WordPress init hook, which looks
+ * if $_GET['gm_gallery_admin_search'] isset. If so, a admin_search_process object is created.
+ *
+ * Display of results is handled by the admin_gallery class.
+ *
+ * @package GM_community_gallery\admin
+ * @see admin_search_process
+ * @see admin_gallery
+ */
 class admin_search_form
 {
     protected $form_html;
@@ -15,6 +31,9 @@ class admin_search_form
         $this->form_html = $this->build_form();
     }
 
+    /**
+     * @return  string  HTML for the admin search form
+     */
     protected function build_form()
     {
         $name_value  = $this->set_value_from_session('gm_value_name');
@@ -70,11 +89,23 @@ class admin_search_form
         return $html;
     }
 
+    /**
+     * Checks if $_SESSION variables are present. If so, return the value. Else return whitespace. This is used to
+     * retain field values entered previously when the admin_search_process class finishes running and redirects back
+     * to the admin gallery.
+     *
+     * @param   $index  string  The index for the $_SESSION variable being checked.
+     * @return  string          If data is at $_SESSION[$index], return value. Else, return whitespace
+     */
     protected function set_value_from_session($index)
     {
-        return isset($_SESSION[$index]) ? htmlspecialchars($_SESSION[$index]) : '';
+        return isset($_SESSION[$index]) ? htmlentities($_SESSION[$index], ENT_QUOTES) : '';
     }
 
+    /**
+     * Destroys $_SESSION variables associated with the admin search. If the page reloads we don't want the input
+     * values to remain forever.
+     */
     protected function destroy_gm_sessions()
     {
         foreach ($_SESSION as $key=>$value)
@@ -86,8 +117,9 @@ class admin_search_form
         }
     }
 
-
-
+    /**
+     * @return string   HTML for the admin search form.
+     */
     public function return_search_form()
     {
         return $this->form_html;
