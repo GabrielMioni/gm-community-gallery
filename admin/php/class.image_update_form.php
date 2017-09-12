@@ -1,14 +1,34 @@
 <?php
 
+/**
+ * @package     GM-Community-Gallery
+ * @author      Gabriel Mioni <gabriel@gabrielmioni.com>
+ */
+
 namespace GM_community_gallery\admin;
 
 require_once('trait.get_gallery_url.php');
 
-class build_image_edit_form
+/**
+ * Builds HTML for the image edit form. The image edit form is displayed when a user clicks on an image in the
+ * admin gallery at wp-admin/admin.php?page=gm-community-gallery.  Each image is nested with a link that sets
+ * $_GET['edit'] to the alphanumeric id associated with the image record.
+ *
+ * Changes made to the image's record are processed at class.image_update_process.php
+ *
+ * @package GM_community_gallery\admin
+ * @see image_update_process
+ *
+ */
+class image_update_form
 {
+    /** @var bool|string    The value of $_GET['edit'] */
     protected $image_id;
+
+    /** @var array|bool     Array data retrieved for the record associated with $this->image_id */
     protected $image_data;
 
+    /** @var string         HTML for the image edit form */
     protected $form_html;
 
     // gm_gallery_url() and get_settings_page_url() are in this trait
@@ -22,6 +42,11 @@ class build_image_edit_form
         $this->form_html = $this->build_edit_form($this->image_data);
     }
 
+    /**
+     * Grab the alphanumeric $_GET['edit'] value. This is used to look up the image being edited.
+     *
+     * @return bool|string  False if no data is found. Else returns value of $_GET['edit']
+     */
     protected function set_image_id()
     {
         $out = false;
@@ -36,6 +61,12 @@ class build_image_edit_form
         return $out;
     }
 
+    /**
+     * Get an array of data for the image record on the gm_community_gallery MySQL table where id = $id
+     *
+     * @param   $id     string  Alphanumeric ID set at $_GET['edit']
+     * @return  bool|array      If no data is found through the prepared statement, return false. Else return array with image data.
+     */
     protected function get_image_data($id)
     {
         $table_name = GM_GALLERY_TABLENAME;
@@ -54,7 +85,14 @@ class build_image_edit_form
         return false;
     }
 
-    protected function build_edit_form($image_data)
+
+    /**
+     * Builds HTML parent element for the edit form. Includes the actual image being edited.
+     *
+     * @param   array   $image_data     Image data found for the image being edited.
+     * @return  string                  HTML for containing element of the edit form (also the actual image and the edit form).
+     */
+    protected function build_edit_form(array $image_data)
     {
         $id = $image_data['id'];
 //        $thumb_url = $this->get_gallery_url('thumbs') . $id . '.jpg';
@@ -68,10 +106,17 @@ class build_image_edit_form
         $html .= '</div>';
 
         return $html;
-
     }
 
-    protected function build_form_table($image_data)
+    /**
+     * Builds HTML for the text inputs and textareas for the edit form. The edit form includes a nonce that is
+     * validated at class.image_upload_process.php
+     *
+     * @param   array $image_data   Array data for the image record being edited.
+     * @return  string              HTML for the edit form
+     * @see     image_update_process::validate_nonce()
+     */
+    protected function build_form_table(array $image_data)
     {
         $title = $image_data['title'];
         $submitter = $image_data['name'];
@@ -119,6 +164,9 @@ class build_image_edit_form
         return $form;
     }
 
+    /**
+     * @return  string  HTML for the trash and submit buttons.
+     */
     protected function set_submit_row()
     {
         $row  = '<p class="submit">';
@@ -130,21 +178,34 @@ class build_image_edit_form
         return $row;
     }
 
+    /**
+     * Builds a <tr> element with a label element and either an embeded text input, textarea or nothing.
+     *
+     * @param $label        string  Text that should appear in the label
+     * @param $name_and_id  string  The element's name and id
+     * @param $value        string  The value for the input or textarea
+     * @param string $type          Sets whether a text input, textarea or just a <td> element will be created.
+     *                              'textarea' and 'no_input' can be accepted. Default will create a text input.
+     * @return string               HTML for the form <tr> element.
+     */
     protected function set_form_rows($label, $name_and_id, $value, $type='text')
     {
         $row  = '<tr>';
         $row .= "<th scope='row'><label for='$name_and_id'>$label</label></th>";
 
+//        $value = htmlspecialchars( stripslashes($value) );
+        $value = htmlentities( stripslashes($value), ENT_QUOTES );
+
         switch ($type)
         {
             case 'textarea':
-                $row .= "<td><textarea id='$name_and_id' name='$name_and_id'>$value</textarea></td>";
+                $row .= "<td><textarea id='$name_and_id' name='$name_and_id'>" . $value . "</textarea></td>";
                 break;
             case 'no_input':
-                $row .= "<td id='$name_and_id'>$value</td>";
+                $row .= "<td id='$name_and_id'>" . $value . "</td>";
                 break;
             default:
-                $row .= "<td><input name='$name_and_id' id='$name_and_id' value='$value' class='regular-text' type='text'></td>";
+                $row .= "<td><input name='$name_and_id' id='$name_and_id' value='" . $value . "' class='regular-text' type='text'></td>";
                 break;
         }
 
@@ -153,6 +214,13 @@ class build_image_edit_form
         return $row;
     }
 
+    /**
+     * Sets a response message that's displayed if the user has edited the image data or moved the image to trash
+     * (or if there's some kind of error).
+     *
+     * @return  string  Checks $_SESSION['response'] to look for a response that's set at class.image_update_process.php
+     * @see image_update_process::set_response_message()
+     */
     protected function set_response_message()
     {
         $html = '';
@@ -167,11 +235,11 @@ class build_image_edit_form
         if (isset($response['error']))
         {
             $message = $response['error'];
-            $html .= "<div id='response' class='error'>$message</div>";
+            $html .= "<div id=\"response\" class=\"error\">$message</div>";
         } elseif (isset($response['success']))
         {
             $message = $response['success'];
-            $html .= "<div id='response' class='updated'>$message</div>";
+            $html .= "<div id=\"response\" class=\"updated\">$message</div>";
         }
 
         unset($_SESSION['response']);
@@ -180,6 +248,9 @@ class build_image_edit_form
 
     }
 
+    /**
+     * @return string   HTML for the image edit form.
+     */
     public function return_html_form()
     {
         return $this->form_html;
