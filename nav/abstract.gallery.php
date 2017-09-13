@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package     GM-Community-Gallery
+ * @package     GM Community Gallery
  * @author      Gabriel Mioni <gabriel@gabrielmioni.com>
  */
 
@@ -86,11 +86,11 @@ abstract class gallery
     /**
      * Returns the URL for the GM Community Gallery admin page
      *
-     * @return string
+     * @return string   The URL for the GM Community Gallery console
      */
     protected function get_settings_page_url()
     {
-        return admin_url('admin.php?page=gm-community-submit');
+        return admin_url('admin.php?page=gm-community-gallery');
     }
 
     /**
