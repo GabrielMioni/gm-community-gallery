@@ -84,6 +84,18 @@ abstract class gallery
     }
 
     /**
+     * Returns $value with slashes stripped (slashes are used as escape characters in the MySQL table) and
+     * html entities() applied.
+     *
+     * @param   $value  string  The string we want processed.
+     * @return          string  $value with slashes stripped and characters converted to HTML entities.
+     */
+    protected function set_value($value)
+    {
+        return htmlentities( stripslashes($value), ENT_QUOTES );
+    }
+
+    /**
      * Returns the URL for the GM Community Gallery admin page
      *
      * @return string   The URL for the GM Community Gallery console

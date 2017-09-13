@@ -88,16 +88,4 @@ class admin_gallery extends gallery
         return $div;
     }
 
-    /**
-     * Returns $value with slashes stripped (slashes are used as escape characters in the MySQL table) and
-     * html entities() applied.
-     *
-     * @param   $value  string  The string we want processed.
-     * @return          string  $value with slashes stripped and characters converted to HTML entities.
-     */
-    protected function set_value($value)
-    {
-        return htmlentities( stripslashes($value), ENT_QUOTES );
-    }
-
 }
