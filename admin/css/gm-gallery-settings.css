@@ -137,6 +137,40 @@
     float: right;
 }
 
+#gm_gallery_search {
+    max-width: 95%;
+    padding-bottom: 5px;
+}
+
+#gm_gallery_search .form-table {
+    margin-bottom: 5px;
+}
+
+#gm_gallery_search .form-table th, .form-table td {
+    padding: 0;
+}
+
+#gm_gallery_search .form-table tr {
+    display: inline-block;
+}
+
+#gm_gallery_search .form-table .full_row {
+    display: block;
+}
+
+#gm_gallery_search .button_container {
+    margin-top: 5px;
+}
+
+#gm_gallery_search .form-table th {
+    width: 120px;
+}
+
+#gm_gallery_search .form-table input[type="text"]
+{
+    width: 450px;
+}
+
 @media screen and (max-width: 800px) {
     .image_card img {
         max-height: none;
