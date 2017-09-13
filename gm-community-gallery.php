@@ -110,13 +110,23 @@ function gm_gallery_create_sql_db()
 }
 
 /* *******************************
- * - Register CSS
+ * - Register Submit Form CSS
  * *******************************/
 add_action( 'wp_enqueue_scripts', 'gm_register_gallery_css' );
 function gm_register_gallery_css()
 {
     wp_register_style( 'gm-gallery-css', plugins_url( 'submit/css/gm-gallery.css', __FILE__ ), array(), GM_GALLERY_VERSION, 'all' );
 }
+
+/* *******************************
+ * - Register Pagination CSS
+ * *******************************/
+add_action( 'wp_enqueue_scripts', 'gm_register_pagination_css' );
+function gm_register_pagination_css()
+{
+    wp_register_style( 'gm-pagination-css', plugins_url( 'nav/css/pagination.css', __FILE__ ), array(), GM_GALLERY_VERSION, 'all' );
+}
+
 
 /* *******************************
  * - Contact Submit Form Shortcode
@@ -152,6 +162,16 @@ function gm_gallery_form_shortcode()
 }
 
 /* *******************************
+ * - Register Public Gallery CSS
+ * *******************************/
+add_action( 'wp_enqueue_scripts', 'gm_register_public_css' );
+function gm_register_public_css()
+{
+    wp_register_style( 'gm-public-css', plugins_url( 'gallery/css/gallery_css.css', __FILE__ ), array(), GM_GALLERY_VERSION, 'all' );
+}
+
+
+/* *******************************
  * - Public Gallery Shortcode
  * *******************************/
 
@@ -160,6 +180,10 @@ function gm_public_gallery_shortcode()
 {
     require_once('gallery/php/class.public_navigate.php');
     require_once('gallery/php/class.public_gallery.php');
+    require_once('nav/class.pagination.php');
+
+    wp_enqueue_style('gm-public-css');
+    wp_enqueue_style('gm-pagination-css');
 
     $auto_p_flag = false;
 
@@ -174,7 +198,9 @@ function gm_public_gallery_shortcode()
     $public_navigate = new GM_community_gallery\_public\public_navigate();
 
     $build_public_gallery = new GM_community_gallery\_public\public_gallery($public_navigate);
+    $build_public_pagination = new pagination($public_navigate);
 
+    echo $build_public_pagination->return_pagination_html();
     echo $build_public_gallery->return_gallery_html();
 
     // If wpautop had been set previously, re-enable it.
