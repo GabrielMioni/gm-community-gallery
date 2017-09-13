@@ -122,12 +122,151 @@ abstract class navigate
     }
 
     /**
+     * Appends new portions of a MySQL query to the prepared statement and pushes values to the array that will also
+     * be used in the prepared statement.
+     *
+     * @param $column       string  Column being set with $value
+     * @param $value        string  Value being set to $column
+     * @param $append_to    string  Prepared statement being appended to. Passed by reference.
+     * @param array $args           Array holding arguments for the prepared statement. Passed by reference.
+     * @param string $type          Data type being set in the prepared statement.
+     */
+    protected function append_query_input($column, $value, &$append_to, array &$args, $type = '%s')
+    {
+        if ($value !== false)
+        {
+            $append_to .= "$column LIKE $type AND ";
+            $args[] = $value;
+        }
+    }
+
+    protected function append_query_tags(array $tags, &$query, &$args)
+    {
+        if (empty($tags))
+        {
+            return false;
+        }
+
+        $tags_query = '';
+
+        foreach ($tags as $value)
+        {
+            $tags_query .= "tags LIKE %s OR " ;
+            $args[] = $value;
+        }
+
+        $tags_query = rtrim($tags_query, 'OR ');
+
+        $query .= $tags_query;
+    }
+
+    /**
+     * Appends a MySQL snippet to the prepared statement looking for records created either on a certain day or
+     * between two [2] dates. Dates are pushed to the $args array by reference.
+     *
+     * @param   array $date             The array holding date data.
+     * @param   $append_to      string  Prepared statement being appended to. Passed by reference.
+     * @param   array $args             Array holding arguments for the prepared statement. Passed by reference.
+     * @return  bool                    Return false if there's no date info to append / push.
+     */
+    protected function append_query_date(array $date, &$append_to, array &$args)
+    {
+        if (empty($date))
+        {
+            return false;
+        }
+
+        $append_to .= ' created > %s AND created < %s';
+
+        $date_count = count($date);
+
+        if ($date_count === 1)
+        {
+            $end = $this->date_formatter($date[0], 86400);
+
+            $args[] = $this->date_formatter($date[0]);
+            $args[] = $end;
+        }
+
+        if ($date_count === 2)
+        {
+            $this->sort_date($date);
+
+            $args[] = $this->date_formatter($date[0]);
+            $args[] = $this->date_formatter($date[1]);
+        }
+    }
+
+    /**
+     * Formats date for the prepared statement.
+     *
+     * @param   $date           string      Human readable date.
+     * @param   int $modify                 Can be set to alter the date value by seconds.
+     * @return  false|string                The formatted date if $date is valid. Else, return false.
+     */
+    protected function date_formatter($date, $modify = 0)
+    {
+        return date( 'Y-m-d H:i:s', strtotime($date) + $modify);
+    }
+
+    /**
+     * If $where_query isn't empty, append it to the $query value. Trim trailing 'AND ' / 'OR ' from the end
+     * of $where_query.
+     *
+     * @param   $query          string      The prepared statement.
+     * @param   $where_query    string      The portion of the prepared statement holding the WHERE query.
+     */
+    protected function append_query_where(&$query, $where_query)
+    {
+        if (trim($where_query) !== '')
+        {
+            $where_query = rtrim($where_query, 'AND ');
+            $where_query = rtrim($where_query, 'OR ');
+
+            $query .= ' WHERE ' . $where_query;
+        }
+    }
+
+    /**
+     *
+     *
+     * @param   $is_count   bool    Flag for whether the prepared statement is collecting count or rows as the result.
+     * @param   $page       int     Page being requested.
+     * @param   $limit      int     Number of results requested per page.
+     * @param   $query      string  Prepared statement the LIMIT portion of the query is being appended to.
+     * @param   array $args         Array hold arguments for the prepared statement.
+     * @return  bool                Returns false if $is_count is true
+     */
+    protected function append_query_limit($is_count, $page, $limit, &$query, array &$args)
+    {
+        if ($is_count)
+        {
+            return false;
+        }
+
+        // Prepare $page and $limit defaults. Must be whole numbers.
+        $page  = $page  === false ? 0 : ceil($page);
+        $limit = $limit === false ? 10 : ceil($limit);
+
+        // If $limit is odd for some reason, round it up.
+        $limit_stop  = ($limit % 2 == 0) === true ? $limit : $limit + 1;
+
+        // The minimum value for $limit_start is 0.
+        $limit_start = $page -1 <= 0 ? 0 : ($page - 1) * $limit_stop;
+
+        $query .= ' LIMIT %d, %d';
+        $args[] = $limit_start;
+        $args[] = $limit_stop;
+    }
+
+    /**
      * Returns two integers in an array representing the places where the MySQL query returned rows should start
      * and the maximum returned rows.
      *
      * @param   $page   int     The page being requested.
      * @param   $limit  int     The number of results requested per page.
      * @return  array           Always two integers representing the row start and row stop for the query.
+     * @deprecated  Replaced by $this->append_query_limit()
      */
     protected function calculate_limit_start_stop($page, $limit)
     {
@@ -170,6 +309,4 @@ abstract class navigate
     {
         return strtotime($a) - strtotime($b);
     }
-
-
 }
