@@ -43,6 +43,7 @@ class image_upload_process
         $this->input_data['email']   = $this->check_email('email', $this->errors);
         $this->input_data['message'] = $this->check_text('message', $this->errors);
         $this->input_data['title']   = $this->check_text('title', $this->errors);
+        $this->input_data['ip']      = $this->check_ip();
 
         $this->check_image($this->image_index, $this->errors);
 
@@ -102,6 +103,40 @@ class image_upload_process
         }
 
         return $email;
+    }
+
+    /**
+     * Yoinked from https://stackoverflow.com/questions/15699101/get-the-client-ip-address-using-php
+     *
+     * @return  string  The IP address.
+     */
+    function check_ip()
+    {
+        $ip_address = '';
+        if (isset($_SERVER['HTTP_CLIENT_IP']))
+        {
+            $ip_address = $_SERVER['HTTP_CLIENT_IP'];
+        } else if(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+        {
+            $ip_address = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } else if(isset($_SERVER['HTTP_X_FORWARDED']))
+        {
+            $ip_address = $_SERVER['HTTP_X_FORWARDED'];
+        } else if(isset($_SERVER['HTTP_FORWARDED_FOR']))
+        {
+            $ip_address = $_SERVER['HTTP_FORWARDED_FOR'];
+        } else if(isset($_SERVER['HTTP_FORWARDED']))
+        {
+            $ip_address = $_SERVER['HTTP_FORWARDED'];
+        } else if(isset($_SERVER['REMOTE_ADDR']))
+        {
+            $ip_address = $_SERVER['REMOTE_ADDR'];
+        } else
+        {
+            $ip_address = 'UNKNOWN';
+        }
+
+        return $ip_address;
     }
 
     /**
