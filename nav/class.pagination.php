@@ -244,12 +244,12 @@ class pagination
 
         if (strpos($new_query_string, 'paginate=') === false)
         {
-            $new_query_string .= 'paginate=' . $page_pointer;
+            $new_query_string .= '&paginate=' . $page_pointer;
         }
 
         if ($is_admin === true)
         {
-            $new_query_string = 'page=gm-community-submit&' . $new_query_string;
+            $new_query_string = 'page=gm-community-gallery&' . $new_query_string;
         }
 
         $new_query_string = rtrim($new_query_string, '&');
