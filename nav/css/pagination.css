@@ -1,0 +1,33 @@
+#gm_pagination .page_button {
+    /*    border: 1px solid grey; */
+    display: inline-block;
+    font-weight: bolder;
+    margin-right: 5px;
+    padding: 5px;
+    text-align: center;
+    min-width: 20px;
+}
+
+#gm_pagination .page_button.gm_current {
+    background-color: black;
+    color: white;
+}
+
+.gm_active.page_button > a {
+    color: inherit;
+    display: block;
+    text-decoration: none;
+    opacity: .7;
+}
+
+.gm_active.page_button > a:hover {
+    opacity: .9;
+}
+
+#gm_pagination .gm_faded.page_button {
+    opacity: 0.3;
+}
+
+#gm_pagination #page_location {
+    float: right;
+}
