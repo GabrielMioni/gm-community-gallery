@@ -167,7 +167,7 @@ function gm_gallery_form_shortcode()
 add_action( 'wp_enqueue_scripts', 'gm_register_public_css' );
 function gm_register_public_css()
 {
-    wp_register_style( 'gm-public-css', plugins_url( 'gallery/css/gallery_css.css', __FILE__ ), array(), GM_GALLERY_VERSION, 'all' );
+    wp_register_style( 'gm-public-css', plugins_url( 'public/css/gallery_css.css', __FILE__ ), array(), GM_GALLERY_VERSION, 'all' );
 }
 
 
@@ -178,8 +178,8 @@ function gm_register_public_css()
 add_shortcode('gm-public-gallery', 'gm_public_gallery_shortcode');
 function gm_public_gallery_shortcode()
 {
-    require_once('gallery/php/class.public_navigate.php');
-    require_once('gallery/php/class.public_gallery.php');
+    require_once('public/php/class.public_navigate.php');
+    require_once('public/php/class.public_gallery.php');
     require_once('nav/class.pagination.php');
 
     wp_enqueue_style('gm-public-css');
