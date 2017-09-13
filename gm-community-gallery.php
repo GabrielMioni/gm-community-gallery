@@ -64,14 +64,14 @@ function gm_community_gallery_activated()
 }
 
 /* ******************************************************
- * - Create the /uploads/gm-community-submit directory
+ * - Create the /uploads/gm-community-gallery directory
  * ******************************************************/
 
 function gm_gallery_create_directories()
 {
     $wp_uploads_dir = wp_upload_dir();
     $wp_uploads_dir_base = $wp_uploads_dir['basedir'];
-    $gm_directory = $wp_uploads_dir_base . '/gm-community-submit';
+    $gm_directory = $wp_uploads_dir_base . '/gm-community-gallery';
     $gm_thumbs = $gm_directory . '/thumbs';
     $gm_images = $gm_directory . '/images';
 
@@ -164,7 +164,7 @@ function gm_register_settings_css()
 add_action( 'admin_menu', 'gm_community_gallery_menu' );
 function gm_community_gallery_menu()
 {
-    $menu = add_menu_page( 'GM Community Gallery', 'GM Community Gallery', 'manage_options', 'gm-community-submit', 'gm_community_options' );
+    $menu = add_menu_page( 'GM Community Gallery', 'GM Community Gallery', 'manage_options', 'gm-community-gallery', 'gm_community_options' );
 
     add_action( 'admin_print_styles-' . $menu, 'gm_register_settings_css' );
 }
@@ -182,13 +182,14 @@ function gm_community_options()
     {
         require_once('admin/php/class.image_update_form.php');
 
-        $build_form = new GM_community_gallery\admin\build_image_edit_form();
+        $build_form = new GM_community_gallery\admin\image_update_form();
         echo $build_form->return_html_form();
 
     } else {
 
         require_once('admin/php/class.admin_navigate.php');
         require_once('admin/php/class.admin_gallery.php');
+        require_once('admin/php/class.admin_search_form.php');
         require_once('nav/class.pagination.php');
 
         // Build the navigate object
@@ -202,7 +203,12 @@ function gm_community_options()
         $admin_pagination = new pagination($admin_navigate);
         $html_pagination = $admin_pagination->return_pagination_html();
 
-        // Display pagination and gallery
+        // Build Search Form
+        $admin_search_form = new \GM_community_gallery\admin\admin_search_form();
+        $html_search_form  = $admin_search_form->return_search_form();
+
+        // Display everything
+        echo $html_search_form;
         echo $html_pagination;
         echo $html_gallery;
     }
@@ -238,5 +244,18 @@ function gm_update_admin()
 
         new GM_community_gallery\admin\image_update_process();
 
+    }
+}
+
+add_action('init', 'gm_admin_search');
+function gm_admin_search()
+{
+    $api_set = isset($_GET['gm_gallery_admin_search']) ? true : false;
+
+    if ($api_set === true)
+    {
+        require_once('admin/php/class.admin_search_process.php');
+
+        new \GM_community_gallery\admin\admin_search_process();
     }
 }
