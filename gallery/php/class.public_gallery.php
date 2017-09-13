@@ -38,8 +38,8 @@ class public_gallery extends gallery
     {
         $id = $this->set_value($image_data['id']);
         $title = $this->set_value($image_data['title']);
-        $created = date('m/d/Y g:ia', strtotime( $this->set_value($image_data['created']) ) );
-        $submitter = $this->set_value($image_data['name']);
+//        $created = date('m/d/Y g:ia', strtotime( $this->set_value($image_data['created']) ) );
+//        $submitter = $this->set_value($image_data['name']);
 
         $image_file  = $id . '.jpg';
         $gallery_url = $this->get_gallery_url();
@@ -48,12 +48,7 @@ class public_gallery extends gallery
 
         $div = "<div class='image_card'>
                     <div class='image_frame'>
-                        <img src='$image_url'>
-                    </div>
-                    <div class='info'>
-                        <div class='title'>$title</div>
-                        <div class='submitter'>$submitter</div>
-                        <div class='created'>$created</div>
+                        <span class='helper'></span><img src='$image_url'><a href=''><span>$title</span></a>
                     </div>
                 </div>";
 
