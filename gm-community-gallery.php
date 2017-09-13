@@ -152,6 +152,40 @@ function gm_gallery_form_shortcode()
 }
 
 /* *******************************
+ * - Public Gallery Shortcode
+ * *******************************/
+
+add_shortcode('gm-public-gallery', 'gm_public_gallery_shortcode');
+function gm_public_gallery_shortcode()
+{
+    require_once('gallery/php/class.public_navigate.php');
+    require_once('gallery/php/class.public_gallery.php');
+
+    $auto_p_flag = false;
+
+    // If wpautop filter is set, temporarily disable it.
+    if ( has_filter( 'the_content', 'wpautop' ) )
+    {
+        $auto_p_flag = true;
+        remove_filter( 'the_content', 'wpautop' );
+        remove_filter( 'the_excerpt', 'wpautop' );
+    }
+
+    $public_navigate = new GM_community_gallery\_public\public_navigate();
+
+    $build_public_gallery = new GM_community_gallery\_public\public_gallery($public_navigate);
+
+    echo $build_public_gallery->return_gallery_html();
+
+    // If wpautop had been set previously, re-enable it.
+    if ($auto_p_flag === true)
+    {
+        add_filter( 'the_content', 'wpautop' );
+        add_filter( 'the_excerpt', 'wpautop' );
+    }
+}
+
+/* *******************************
  * - Settings Page
  * *******************************/
 
