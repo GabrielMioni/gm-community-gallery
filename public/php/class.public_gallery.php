@@ -38,21 +38,61 @@ class public_gallery extends gallery
     {
         $id = $this->set_value($image_data['id']);
         $title = $this->set_value($image_data['title']);
-//        $created = date('m/d/Y g:ia', strtotime( $this->set_value($image_data['created']) ) );
-//        $submitter = $this->set_value($image_data['name']);
+
+        $submitter = ctype_space($image_data['name'])    ? '' : $this->remove_slashes_convert_chars($image_data['name']);
+        $message   = ctype_space($image_data['message']) ? '' : $this->convert_nl2p($image_data['message']);
+        $comment   = ctype_space($image_data['comment']) ? '' : $this->convert_nl2p($image_data['comment']);
+
 
         $image_file  = $id . '.jpg';
         $gallery_url = $this->get_gallery_url();
 
         $image_url = $gallery_url .'thumbs/' . $image_file;
+        $link_url  = $this->build_url($id);
 
         $div = "<div class='image_card'>
                     <div class='image_frame'>
-                        <span class='helper'></span><img src='$image_url'><a href=''><span>$title</span></a>
+                        <span class='helper'></span><img src='$image_url'><a href='$link_url'><span>$title</span></a>
+                    </div>
+                    <div class='gm_hidden_info'>
+                        <span class='gm_title'>$title</span>
+                        <span class='gm_submitter'>$submitter</span>
+                        <span class='gm_message'>$message</span>
+                        <span class='gm_reply'>$comment</span>
+                        
                     </div>
                 </div>";
 
         // and this is the well.
         return $div;
+    }
+
+    protected function convert_nl2p($value)
+    {
+        $html = '';
+
+        $exp = explode(PHP_EOL, $value);
+
+        foreach ($exp as $value)
+        {
+            if ( ctype_space($value) === false )
+            {
+                $html .= '<p>' . $this->remove_slashes_convert_chars($value) .'</p>';
+            }
+
+        }
+
+        return $html;
+    }
+
+    protected function remove_slashes_convert_chars($value)
+    {
+        return htmlentities( stripslashes($value) );
+    }
+
+    protected function build_url($id)
+    {
+        $url = strtok($_SERVER["REQUEST_URI"],'?');
+        return $url . '?view=' . $id;
     }
 }
