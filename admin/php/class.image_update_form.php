@@ -7,6 +7,9 @@
 
 namespace GM_community_gallery\admin;
 
+use GM_community_gallery\nav\image_view;
+
+require_once(GM_GALLERY_DIR . '/nav/abstract.image_view.php');
 require_once('trait.get_gallery_url.php');
 
 /**
@@ -20,71 +23,15 @@ require_once('trait.get_gallery_url.php');
  * @see image_update_process
  *
  */
-class image_update_form
+class image_update_form extends image_view
 {
-    /** @var bool|string    The value of $_GET['edit'] */
-    protected $image_id;
-
-    /** @var array|bool     Array data retrieved for the record associated with $this->image_id */
-    protected $image_data;
-
-    /** @var string         HTML for the image edit form */
-    protected $form_html;
-
     // gm_gallery_url() and get_settings_page_url() are in this trait
     use get_gallery_url;
 
     public function __construct()
     {
-        $this->image_id = $this->set_image_id();
-        $this->image_data = $this->get_image_data($this->image_id);
-
-        $this->form_html = $this->build_edit_form($this->image_data);
+        parent::__construct('edit');
     }
-
-    /**
-     * Grab the alphanumeric $_GET['edit'] value. This is used to look up the image being edited.
-     *
-     * @return bool|string  False if no data is found. Else returns value of $_GET['edit']
-     */
-    protected function set_image_id()
-    {
-        $out = false;
-        if (isset($_GET['edit']))
-        {
-            $out = strip_tags($_GET['edit']);
-        } elseif (isset($_POST['edit']))
-        {
-            $out = strip_tags($_POST['edit']);
-        }
-
-        return $out;
-    }
-
-    /**
-     * Get an array of data for the image record on the gm_community_gallery MySQL table where id = $id
-     *
-     * @param   $id     string  Alphanumeric ID set at $_GET['edit']
-     * @return  bool|array      If no data is found through the prepared statement, return false. Else return array with image data.
-     */
-    protected function get_image_data($id)
-    {
-        $table_name = GM_GALLERY_TABLENAME;
-        $query = "SELECT * FROM $table_name WHERE id=%s";
-
-        global $wpdb;
-
-        $prepare = $wpdb->prepare($query, [$id]);
-        $result  = $wpdb->get_results($prepare, ARRAY_A);
-
-        if ( ! empty($result) )
-        {
-            return $result[0];
-        }
-
-        return false;
-    }
-
 
     /**
      * Builds HTML parent element for the edit form. Includes the actual image being edited.
@@ -92,7 +39,7 @@ class image_update_form
      * @param   array   $image_data     Image data found for the image being edited.
      * @return  string                  HTML for containing element of the edit form (also the actual image and the edit form).
      */
-    protected function build_edit_form(array $image_data)
+    protected function build_view(array $image_data)
     {
         $id = $image_data['id'];
 //        $thumb_url = $this->get_gallery_url('thumbs') . $id . '.jpg';
@@ -172,7 +119,6 @@ class image_update_form
         $row  = '<p class="submit">';
         $row .= '<input type="submit" class="button button-primary" value="Save Changes" id="gm_image_submit" name="gm_image_update">';
         $row .= '<input type="submit" class="button button-primary" value="Move to trash" id="gm_image_delete" name="gm_image_update">';
-//        $row .= '<input name="submit" id="submit" class="button button-primary" value="Save Changes" type="submit">';
         $row .= '</p>';
 
         return $row;
@@ -193,7 +139,6 @@ class image_update_form
         $row  = '<tr>';
         $row .= "<th scope='row'><label for='$name_and_id'>$label</label></th>";
 
-//        $value = htmlspecialchars( stripslashes($value) );
         $value = htmlentities( stripslashes($value), ENT_QUOTES );
 
         switch ($type)
@@ -247,14 +192,4 @@ class image_update_form
         return $html;
 
     }
-
-    /**
-     * @return string   HTML for the image edit form.
-     */
-    public function return_html_form()
-    {
-        return $this->form_html;
-    }
-
-
 }
