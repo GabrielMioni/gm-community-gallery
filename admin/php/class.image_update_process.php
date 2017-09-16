@@ -56,7 +56,7 @@ class image_update_process
      * Validate the nonce set class.admin_update_form.php
      *
      * @return bool     True if nonce is valid. Else false.
-     * @see image_update_form::build_edit_form()
+     * @see image_update_form::build_image_view()
      */
     protected function validate_nonce()
     {
