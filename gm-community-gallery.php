@@ -167,7 +167,20 @@ function gm_gallery_form_shortcode()
 add_action( 'wp_enqueue_scripts', 'gm_register_public_css' );
 function gm_register_public_css()
 {
-    wp_register_style( 'gm-public-css', plugins_url( 'public/css/gallery_css.css', __FILE__ ), array(), GM_GALLERY_VERSION, 'all' );
+    wp_register_style( 'gm-public-css', plugins_url( 'public/css/gallery.css', __FILE__ ), array(), GM_GALLERY_VERSION, 'all' );
+}
+
+/* *********************
+ * - Register Public JS
+ * *********************/
+
+add_action( 'wp_enqueue_scripts', 'gm_register_public_js' );
+function gm_register_public_js()
+{
+    if ( ! wp_is_mobile() )
+    {
+        wp_register_script( 'gm-public-js', plugins_url( 'public/js/gm_lightbox.js', __FILE__ ), array( 'jquery' ), GM_GALLERY_VERSION, true );
+    }
 }
 
 
@@ -178,11 +191,23 @@ function gm_register_public_css()
 add_shortcode('gm-public-gallery', 'gm_public_gallery_shortcode');
 function gm_public_gallery_shortcode()
 {
+    wp_enqueue_style('gm-public-css');
+    wp_enqueue_script('gm-public-js');
+
+    if (isset($_GET['view']))
+    {
+        require_once('public/php/class.public_view.php');
+
+        $build_public_view = new public_view();
+        echo $build_public_view->return_html();
+
+        return false;
+    }
+
     require_once('public/php/class.public_navigate.php');
     require_once('public/php/class.public_gallery.php');
     require_once('nav/class.pagination.php');
 
-    wp_enqueue_style('gm-public-css');
     wp_enqueue_style('gm-pagination-css');
 
     $auto_p_flag = false;
@@ -243,7 +268,7 @@ function gm_community_options()
         require_once('admin/php/class.image_update_form.php');
 
         $build_form = new GM_community_gallery\admin\image_update_form();
-        echo $build_form->return_html_form();
+        echo $build_form->return_html();
 
     } else {
 
