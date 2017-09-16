@@ -10,10 +10,12 @@ use GM_community_gallery\nav\navigate as navigate;
  * by the pagination bar.
  *
  * @see \GM_community_gallery\nav\gallery
- * @see |GM_community_gallery|nav|navigate
+ * @see navigate
  */
 class pagination
 {
+    protected $is_admin;
+
     /** @var int    The total number of images in the gm_community_gallery table  */
     protected $image_count;
 
@@ -182,13 +184,13 @@ class pagination
      * @param   $current_page   int     The current page being viewed.
      * @return  string                  HTML for the pagination button.
      */
-    protected function set_pagination_span($page_pointer, $current_page, $is_admin = true)
+    protected function set_pagination_span($page_pointer, $current_page)
     {
         if ($page_pointer === $current_page)
         {
             return "<span class='gm_current page_button'> $page_pointer </span>";
         }
-        $url = $this->get_url($page_pointer, 0, $is_admin);
+        $url = $this->get_url($page_pointer, 0);
 
         return "<span class='gm_active page_button'><a href='$url'> $page_pointer </a> </span>";
     }
@@ -200,15 +202,13 @@ class pagination
      * @param   int $modify_pointer             Can be set to modify the $page_pointer + or -
      * @return  string  URL for pagination button links.
      */
-    protected function get_url($page_pointer, $modify_pointer = 0, $is_admin = true)
+    protected function get_url($page_pointer, $modify_pointer = 0)
     {
         $page_pointer = $page_pointer + $modify_pointer;
 
-//        $admin_url = admin_url('admin.php?page=gm-community-submit');
-
         $url = strtok($_SERVER["REQUEST_URI"],'?');
 
-        $query_string = $this->build_query_string($page_pointer, $is_admin);
+        $query_string = $this->build_query_string($page_pointer);
 
         return $url . '?' . $query_string;
     }
@@ -217,10 +217,9 @@ class pagination
      * Returns a query string with the paginate= value set to $page_pointer
      *
      * @param   $page_pointer   int     The value the returned query string should have for paginate.
-     * @param   bool $is_admin
      * @return  string                  The new query string
      */
-    protected function build_query_string($page_pointer, $is_admin = true)
+    protected function build_query_string($page_pointer)
     {
         $query_string = $_SERVER['QUERY_STRING'];
 
@@ -245,11 +244,6 @@ class pagination
         if (strpos($new_query_string, 'paginate=') === false)
         {
             $new_query_string .= '&paginate=' . $page_pointer;
-        }
-
-        if ($is_admin === true)
-        {
-            $new_query_string = 'page=gm-community-gallery&' . $new_query_string;
         }
 
         $new_query_string = rtrim($new_query_string, '&');
