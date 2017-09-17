@@ -181,7 +181,9 @@ function gm_register_public_js()
     {
         wp_register_script( 'gm-public-js', plugins_url( 'public/js/gm_lightbox.js', __FILE__ ), array( 'jquery' ), GM_GALLERY_VERSION, true );
     }
+    wp_localize_script('gm-public-js', 'gm_js', array( 'images' => plugins_url('public/images/', __FILE__) ) );
 }
+
 
 
 /* *******************************
