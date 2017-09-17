@@ -132,6 +132,7 @@ h3#gm_title {
     top: 0;
     width: 500px;
     z-index: 101;
+    text-align: center;
 }
 
 #gm_canvas img {
@@ -208,6 +209,7 @@ h3#gm_title {
     left: 0;
     position: absolute;
     width: 100%;
+    text-align: left;
 }
 
 #gm_title_bar > div {
@@ -216,12 +218,15 @@ h3#gm_title {
 
 #gm_title_bar #gm_title {
     padding-left: 5px;
+    text-align: left;
 }
 
 #gm_title_bar #gm_info_toggle {
     cursor: pointer;
-    float: right;
-    padding-right: 5px;
+    position: absolute;
+    right: 5px;
+    text-align: left;
+    width: 48px;
 }
 
 #gm_canvas #gm_message_content {
@@ -231,6 +236,7 @@ h3#gm_title {
     left: 0;
     position: absolute;
     width: 100%;
+    text-align: left;
 }
 
 #gm_message_content > div {
@@ -240,4 +246,22 @@ h3#gm_title {
 
 #gm_message_content > p {
     margin: 0 0 10px;
+}
+
+#gm_spinner {
+    left: 0;
+    position: fixed;
+    text-align: center;
+    top: 45%;
+    width: 100%;
+    z-index: 3000;
+}
+
+#gm_spinner #gm_spin_wrapper {
+    background: white none repeat scroll 0 0;
+    border-radius: 600px;
+    display: inline-block;
+    height: 40px;
+    padding-top: 9px;
+    width: 50px;
 }
