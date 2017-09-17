@@ -19,11 +19,29 @@
             set_low_opacity_background();
 
             load_new_image(image_url, function() {
+
+                setTimeout(show_loading_gif, 500);
+
                 create_canvas(rw, rh, image_url, info_obj);
             });
 
-            navigate_arrows(elm);
+            navigate_arrows();
         })
+    }
+
+    /**
+     * Append the spinner gif.
+     */
+    function show_loading_gif()
+    {
+        if ( $(document).find('#gm_canvas').find('img').length < 1 )
+        {
+            var plugin_imgs_url = gm_js.images;
+            var spinner_url = plugin_imgs_url + 'wpspin-2x.gif';
+            var spinner_elm = '<div id="gm_spinner"><div id="gm_spin_wrapper"><img src="'+spinner_url+'"></div></div>';
+
+            $('body').append(spinner_elm);
+        }
     }
 
     function create_info_obj(elm)
@@ -125,7 +143,8 @@
     }
 
     /**
-     * Create the canvas with embedded image. Acts as the callback for the load_new_image() function.
+     * Create the canvas with embedded image. Acts as the callback for the load_new_image() function. Remove the loading
+     * gif it's present.
      *
      * @param   {int}       rw      Loaded image height.
      * @param   {int}       rh      Loaded iage width.
@@ -137,6 +156,7 @@
         var window_h = $(window).height();
         var window_w = $(window).width();
         var max_h = window_h * .8;
+        var min_w = 500;
 
         // Modify dimensions if the image is too big for the lightbox.
         if (rh > max_h)
@@ -147,12 +167,22 @@
             rw = Math.round( rw - (rw * perc) );
         }
 
+        if (rw < min_w)
+        {
+            rw = min_w;
+        }
+
         var top  = Math.round( (window_h - rh) / 2 );
         var left = Math.round( (window_w - rw) / 2 );
 
         var canvas = build_canvas_template(rw, rh, left, top, img_url, info_obj);
 
         $('body').append(canvas);
+        if ( $(document).find('#gm_spinner').length > 0 )
+        {
+            $(document).find('#gm_spinner').remove();
+        }
+
     }
 
     /**
@@ -188,32 +218,6 @@
 
         return canvas_template;
     }
-
-/*
- function build_canvas_template(width, height, left, top, img_url, info_obj)
- {
- var title     = info_obj.title;
- var submitter = info_obj.submitter;
- var message   = info_obj.message;
- var reply     = info_obj.reply;
-
- var title_bar = '<div id="gm_title_bar"><div id="gm_title">'+title+' by '+submitter+'</div><div id="gm_info_toggle">info +</div></div>';
-
- var message_cont = '<div id="gm_message_content"><div id="gm_message_text"'+message+'</div>';
-
- var replace_array = [width+'px', height+'px', left+'px', top+'px', img_url];
- var canvas_template = '<div id="gm_canvas" style="width: %s; height: %s; left: %s; top: %s;"><img src="%s"><div id="gm_img_close"><div id="gm_close">close [x]</div></div>'+ title_bar +'</div></div></div></div>';
-
- while (replace_array.length > 0)
- {
- canvas_template = canvas_template.replace('%s', replace_array[0]);
- replace_array.splice(0, 1);
- }
-
- return canvas_template;
- }
- */
-
 
     /**
      * Destroys the canvas/backdrop/arrows when the back drop is clicked.
@@ -304,7 +308,7 @@
     /**
      * Tries to navigate to the previous (left) or next (right) navigable image. If there are no navigable images
      * in the direction chosen, nothing happens. Else, destroy the current canvas/image and replace with the
-     * new image that's been navigated to
+     * new image that's been navigated to.
      *
      * @param   {int}   keycode     Sets whether navigation is going prev() or next(). Left = 37, Right = 39
      */
@@ -326,22 +330,50 @@
 
         var empty_check = is_empty(target_img);
 
-        if (empty_check === false)
+        // If there was no navigable target_img in the chosen direction, left -> last image / right -> first iamge.
+        if (empty_check !== false)
         {
-            var target_anchor = target_img.find('a');
-
-            $(document).find('#gm_canvas').remove();
-            target_anchor.click();
+            switch (keycode)
+            {
+                case 37:
+                    target_img = $('#gm_community_gallery').find('.image_card:last');
+                    break;
+                case 39:
+                    target_img = $('#gm_community_gallery').find('.image_card:first');
+                    break;
+                default:
+                    break;
+            }
         }
+
+        var target_anchor = target_img.find('a');
+
+        $(document).find('#gm_canvas').remove();
+        target_anchor.click();
     }
 
     /**
      * Append navigation arrows to the backdrop. Left/Right arrows are added when there's a navigable image
      * previous or next to the currently viewed image.
      *
-     * @param {HTMLElement} anchor_elm  The <a> element for the image being viewed.
      */
-    function navigate_arrows(anchor_elm) {
+    function navigate_arrows() {
+
+        var top = ( $(window).height() - 90) / 2;
+
+        var nav_html = '<div id="gm_img_nav">';
+        nav_html += '<div id="gm_nav_left"><div class="arrow_button" style="top:'+top+'px"> &lt; </div></div>';
+        nav_html += '<div id="gm_nav_right"><div class="arrow_button" style="top:'+top+'px"> &gt; </div></div>';
+        nav_html += '</div>';
+
+        $('#gm_drop_canvas').append(nav_html);
+    }
+
+    /**
+     * @deprecated  Lightbox is now infinite
+     * @param anchor_elm
+     */
+    function old_navigate_arrows(anchor_elm) {
 
         var old_nav = $(document).find('#gm_img_nav');
 
