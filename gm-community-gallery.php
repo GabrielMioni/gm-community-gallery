@@ -161,6 +161,12 @@ function gm_gallery_form_shortcode()
     }
 }
 
+add_action( 'wp_enqueue_scripts', 'gm_register_font_awesome' );
+function gm_register_font_awesome()
+{
+    wp_register_style('gm-font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css', GM_GALLERY_VERSION, 'all');
+}
+
 /* *******************************
  * - Register Public Gallery CSS
  * *******************************/
@@ -194,6 +200,7 @@ add_shortcode('gm-public-gallery', 'gm_public_gallery_shortcode');
 function gm_public_gallery_shortcode()
 {
     wp_enqueue_style('gm-public-css');
+    wp_enqueue_style('gm-font-awesome');
     wp_enqueue_script('gm-public-js');
 
     if (isset($_GET['view']))
