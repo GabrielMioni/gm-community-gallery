@@ -20,7 +20,8 @@
 
             load_new_image(image_url, function() {
 
-                setTimeout(show_loading_gif, 500);
+//                setTimeout(show_loading_gif, 500);
+                show_loading_gif();
 
                 create_canvas(rw, rh, image_url, info_obj);
             });
@@ -30,7 +31,8 @@
     }
 
     /**
-     * Append the spinner gif.
+     * Append the spinner gif. This used the gm_js variable which is set in gm-community-gallery.php by the
+     * gm_register_public_js() function.
      */
     function show_loading_gif()
     {
@@ -156,7 +158,7 @@
         var window_h = $(window).height();
         var window_w = $(window).width();
         var max_h = window_h * .8;
-        var min_w = 500;
+        var min_w = window_w * .5;
 
         // Modify dimensions if the image is too big for the lightbox.
         if (rh > max_h)
@@ -237,13 +239,15 @@
         var canvas    = $(document).find('#gm_canvas');
         var back_drop = $(document).find('#gm_drop_canvas');
         var img_nav   = $(document).find('#gm_img_nav');
+        var spinner   = $(document).find('#gm_spinner');
 
         canvas.remove();
         back_drop.remove();
         img_nav.remove();
+        spinner.remove();
     }
 
-    function info_clic() {
+    function info_click() {
         $(document).on('click', '#gm_info_toggle', function () {
             var toggle_button = $(this);
 
@@ -313,6 +317,7 @@
      * @param   {int}   keycode     Sets whether navigation is going prev() or next(). Left = 37, Right = 39
      */
     function navigate(keycode) {
+
         var active = $(document).find('.gm_img_active');
         var target_img = null;
 
@@ -333,13 +338,15 @@
         // If there was no navigable target_img in the chosen direction, left -> last image / right -> first iamge.
         if (empty_check !== false)
         {
+            var gallery = $('#gm_community_gallery');
+
             switch (keycode)
             {
                 case 37:
-                    target_img = $('#gm_community_gallery').find('.image_card:last');
+                    target_img = gallery.find('.image_card:last');
                     break;
                 case 39:
-                    target_img = $('#gm_community_gallery').find('.image_card:first');
+                    target_img = gallery.find('.image_card:first');
                     break;
                 default:
                     break;
@@ -353,23 +360,27 @@
     }
 
     /**
-     * Append navigation arrows to the backdrop. Left/Right arrows are added when there's a navigable image
-     * previous or next to the currently viewed image.
-     *
+     * Append navigation arrows to the backdrop.
      */
     function navigate_arrows() {
 
-        var top = ( $(window).height() - 90) / 2;
+        if ( $(document).find('#gm_img_nav').length < 1 )
+        {
+            var top = ( $(window).height() - 200) / 2;
 
-        var nav_html = '<div id="gm_img_nav">';
-        nav_html += '<div id="gm_nav_left"><div class="arrow_button" style="top:'+top+'px"> &lt; </div></div>';
-        nav_html += '<div id="gm_nav_right"><div class="arrow_button" style="top:'+top+'px"> &gt; </div></div>';
-        nav_html += '</div>';
+            var nav_html = '<div id="gm_img_nav">';
+            nav_html    += '<div id="gm_nav_left"><div class="gm_nav_arrow" style="top:'+top+'px"> <i class="fa fa-angle-left fa-3x" style="top:'+top+'px" aria-hidden="true"></i> </div></div>';
+            nav_html    += '<div id="gm_nav_right"><div class="gm_nav_arrow" style="top:'+top+'px"> <i class="fa fa-angle-right fa-3x" style="top:'+top+'px" aria-hidden="true"></i> </div></div>';
+            nav_html    += '</div>';
 
-        $('#gm_drop_canvas').append(nav_html);
+            $('#gm_drop_canvas').append(nav_html);
+        }
     }
 
     /**
+     * This function adds left/right navigation arrows when there are navigable images in the chosen direction.
+     * Unnecessary since light/right navigation is now infinite.
+     *
      * @deprecated  Lightbox is now infinite
      * @param anchor_elm
      */
@@ -393,11 +404,11 @@
 
         if ( is_empty(img_left) === false )
         {
-            nav_html += '<div id="gm_nav_left"><div class="arrow_button" style="top:'+top+'px"> &lt; </div></div>';
+            nav_html += '<div id="gm_nav_left"><div class="gm_nav_arrow" style="top:'+top+'px"> &lt; </div></div>';
         }
         if ( is_empty(img_right) === false )
         {
-            nav_html += '<div id="gm_nav_right"><div class="arrow_button" style="top:'+top+'px"> &gt; </div></div>';
+            nav_html += '<div id="gm_nav_right"><div class="gm_nav_arrow" style="top:'+top+'px"> &gt; </div></div>';
         }
 
         nav_html += '</div>';
@@ -411,12 +422,12 @@
     function arrow_click()
     {
         $('body').on('click', function(e){
-            if ( $(e.target).is('.arrow_button') )
+            if ( $(e.target).is('.gm_nav_arrow') || $(e.target).is('.gm_nav_arrow .fa') )
             {
                 // Stop bubble to backdrop so the canvas/backdrop/arrows aren't closed
                 e.stopPropagation();
                 var elm = e.target;
-                var parent = $(elm).parent();
+                var parent = $(elm).closest('.gm_nav_arrow').parent();
                 var id = $(parent).attr('id');
 
                 switch (id)
@@ -436,7 +447,7 @@
 
     function click_close()
     {
-        $(document).on('click', '#gm_img_close', function(){
+        $(document).on('click', '#gm_img_close', function() {
             image_close();
         });
     }
@@ -458,7 +469,7 @@
 
     image_click();
     arrow_click();
-    info_clic();
+    info_click();
     click_close();
     back_drop_click();
     keyboard_nav();
