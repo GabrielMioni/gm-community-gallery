@@ -121,6 +121,11 @@ h3#gm_title {
     position: fixed;
     top: 0;
     z-index: 100;
+    /* Prevent double clicks from highlighting the embeded nav arrows */
+    -webkit-user-select: none; /* webkit (safari, chrome) browsers */
+    -moz-user-select: none; /* mozilla browsers */
+    -khtml-user-select: none; /* webkit (konqueror) browsers */
+    -ms-user-select: none; /* IE10+ */
 }
 
 #gm_canvas {
@@ -164,8 +169,8 @@ h3#gm_title {
     margin-right: 5%;
 }
 
-#gm_nav_left .arrow_button,
-#gm_nav_right .arrow_button {
+#gm_nav_left .gm_nav_arrow,
+#gm_nav_right .gm_nav_arrow {
     color: rgba(255, 255, 255, 0.3);
     font-size: 30px;
     padding-bottom: 50px;
@@ -179,8 +184,8 @@ h3#gm_title {
     z-index: 1003;
 }
 
-#gm_nav_left .arrow_button:hover,
-#gm_nav_right .arrow_button:hover {
+#gm_nav_left .gm_nav_arrow:hover,
+#gm_nav_right .gm_nav_arrow:hover {
     color: rgba(255, 255, 255, 0.8);
 }
 
@@ -237,6 +242,16 @@ h3#gm_title {
     position: absolute;
     width: 100%;
     text-align: left;
+    overflow: hidden;
+}
+
+#gm_message_content #gm_reply_text {
+    border-left: 2px solid #3875D7;
+    margin-left: 10px;
+}
+
+#gm_message_content #gm_reply_text > p {
+    margin: 0 0 5px;
 }
 
 #gm_message_content > div {
