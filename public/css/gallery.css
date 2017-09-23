@@ -105,16 +105,12 @@ h3#gm_title {
 }
 
 #gm_image, #gm_info {
-/*    border: 1px solid rgba(0, 0, 0, 0.3); */
-/*    display: inline-block; */
     max-width: 700px;
     vertical-align: top;
 }
 
 #gm_info {
     box-sizing: border-box;
-/*    max-width: 400px;
-    min-width: 400px; */
     padding: 15px;
 }
 
@@ -155,20 +151,6 @@ h3#gm_title {
     width: 100%;
     z-index: 10000;
 }
-
-/*
-#gm_canvas_wrapper #gm_canvas {
-    background-color: snow;
-    height: 500px;
-    left: 0;
-    padding: 5px;
-    position: fixed;
-    top: 0;
-    width: 500px;
-//    z-index: 101;
-    text-align: center;
-}
-*/
 
 #gm_canvas_wrapper #gm_canvas {
     background-color: snow;
