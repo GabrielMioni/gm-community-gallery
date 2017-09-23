@@ -47,19 +47,28 @@ class public_gallery extends gallery
         $image_file  = $id . '.jpg';
         $gallery_url = $this->get_gallery_url();
 
-        $image_url = $gallery_url .'thumbs/' . $image_file;
+        $is_mobile = wp_is_mobile();
+
+        $image_url = '';
+        if ($is_mobile)
+        {
+            $image_url .= $gallery_url .'images/' . $image_file;
+        } else {
+            $image_url .= $gallery_url .'thumbs/' . $image_file;
+        }
+
+
         $link_url  = $this->build_url($id);
 
         $div = "<div class='image_card'>
                     <div class='image_frame'>
-                        <span class='helper'></span><img src='$image_url'><a href='$link_url'><span>$title</span></a>
+                        <span class='helper'></span><img src='$image_url'><a class='gm_image_hover' href='$link_url'><span>$title</span></a>
                     </div>
                     <div class='gm_hidden_info'>
                         <span class='gm_title'>$title</span>
                         <span class='gm_submitter'>$submitter</span>
                         <span class='gm_message'>$message</span>
-                        <span class='gm_reply'>$comment</span>
-                        
+                        <span class='gm_reply'>$comment</span>                        
                     </div>
                 </div>";
 
