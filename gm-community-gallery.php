@@ -183,11 +183,17 @@ function gm_register_public_css()
 add_action( 'wp_enqueue_scripts', 'gm_register_public_js' );
 function gm_register_public_js()
 {
-    if ( ! wp_is_mobile() )
+    $is_mobile = wp_is_mobile() === true ? 1 : 0;
+    $gif_url = plugins_url('public/images/', __FILE__);
+    wp_localize_script('gm-public-js', 'gm_js', array( 'is_mobile' => $is_mobile, 'loading_gif' => $gif_url ) );
+
+    if ( $is_mobile === 1 )
     {
-        wp_register_script( 'gm-public-js', plugins_url( 'public/js/gm_lightbox.js', __FILE__ ), array( 'jquery' ), GM_GALLERY_VERSION, true );
+        wp_register_script( 'tocca', plugins_url( 'public/js/tocca/Tocca.min.js', __FILE__ ), array('jquery'), null, true );
+        wp_enqueue_script( 'tocca' );
     }
-    wp_localize_script('gm-public-js', 'gm_js', array( 'images' => plugins_url('public/images/', __FILE__) ) );
+
+    wp_register_script( 'gm-public-js', plugins_url( 'public/js/gm_lightbox.js', __FILE__ ), array( 'jquery'), GM_GALLERY_VERSION, true );
 }
 
 
