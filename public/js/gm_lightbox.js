@@ -1,32 +1,43 @@
 (function($) {
 
     /**
-     *  Display the light box (background/canvas/image)image on click.
+     *  Loads the image, builds/displays the image canvas and canvas wrapper, navigation buttons, low opacity backdrop.
+     *  The clicked image's .image_card containing element is set with the 'gm_img_active' class.
      */
     function image_click() {
 
         $('.image_frame').find('a').on('click', function (e) {
             e.preventDefault();
 
+            if ( $(document).find('#gm_canvas_wrapper').length > 0 )
+            {
+                $(document).find('#gm_canvas_wrapper').remove();
+            }
+
             var elm = $(this);
             var thumb = elm.prev('img').attr('src');
             var image_url = get_full_image_url(thumb);
 
+            /* *********************************************************************************************************
+             * - Add the 'gm_img_active' class to the containing .img_card for the image that's been clicked.
+             * - The .gm_img_active class is used as a pointer when navigating the lightbox via keypress/swipe/arrow clicks
+             * *********************************************************************************************************/
             set_active( elm );
 
+            // Get text stuff from the image's hidden .gm_hidden_info element.
             var info_obj = create_info_obj(elm);
 
             set_low_opacity_background();
 
             load_new_image(image_url, function() {
 
-//                setTimeout(show_loading_gif, 500);
+                // Will not display on a good connection. Added/removed too quickly.
                 show_loading_gif();
 
                 create_canvas(rw, rh, image_url, info_obj);
             });
 
-            navigate_arrows();
+            $('body').bind('touchmove', function(e){e.preventDefault()})
         })
     }
 
@@ -38,14 +49,22 @@
     {
         if ( $(document).find('#gm_canvas').find('img').length < 1 )
         {
-            var plugin_imgs_url = gm_js.images;
-            var spinner_url = plugin_imgs_url + 'wpspin-2x.gif';
-            var spinner_elm = '<div id="gm_spinner"><div id="gm_spin_wrapper"><img src="'+spinner_url+'"></div></div>';
+            var loading_gif_url = gm_js.loading_gif + 'wpspin-2x.gif';
+
+            var spinner_elm = '<div id="gm_spinner"><div id="gm_spin_wrapper"><img src="'+loading_gif_url+'"></div></div>';
 
             $('body').append(spinner_elm);
+
         }
     }
 
+    /**
+     * Returns an object that holds text/html that will be displayed in the animated 'info' box when an image
+     * is viewed in the lightbox.
+     *
+     * @param    elm      The containing .image_card element that holds the .gm_hidden_info element from which data is gathered
+     * @returns  {Object} Object holding text/html used to display info about the the image.
+     */
     function create_info_obj(elm)
     {
         var parent = elm.closest('.image_card');
@@ -155,45 +174,54 @@
      */
     function create_canvas(rw, rh, img_url, info_obj)
     {
-        var window_h = $(window).height();
-        var window_w = $(window).width();
-        var max_h = window_h * .8;
-        var min_w = window_w * .5;
+        var is_mobile = check_mobile();
+
+        var window_h = window.innerHeight;
+        var window_w = window.innerWidth;
+
+        var max_h = is_mobile === true ? window_h * .6 : window_h * .7;
+        var max_w = is_mobile === true ? window_w * .9 : window_w * .4;
 
         // Modify dimensions if the image is too big for the lightbox.
         if (rh > max_h)
         {
-            var perc = (rh - max_h) / rh;
+            var perc_h = (rh - max_h) / rh;
 
             rh = max_h;
-            rw = Math.round( rw - (rw * perc) );
+            rw = Math.round( rw - (rw * perc_h) );
         }
 
-        if (rw < min_w)
+        if (rw > max_w)
         {
-            rw = min_w;
+            var perc_w = (rw - max_w) / rw;
+
+            rw = max_w;
+            rh = Math.round( rh - (rh * perc_w) );
         }
+
 
         var top  = Math.round( (window_h - rh) / 2 );
         var left = Math.round( (window_w - rw) / 2 );
 
-        var canvas = build_canvas_template(rw, rh, left, top, img_url, info_obj);
+        var set_w = rw.toString() + 'px';
+        var set_h = rh.toString() + 'px';
+        var set_l = left.toString() + 'px';
+        var set_t = top.toString() + 'px';
+
+        var canvas = build_canvas_template(set_w, set_h, set_l, set_t, img_url, info_obj);
 
         $('body').append(canvas);
-        if ( $(document).find('#gm_spinner').length > 0 )
-        {
-            $(document).find('#gm_spinner').remove();
-        }
-
+        $(document).find('#gm_spinner').remove();
+        navigate_arrows();
     }
 
     /**
      * Builds a canvas used to display the image being loaded. Width/Height and fixed position top/left are set by arguments.
      *
-     * @param   {int} width
-     * @param   {int} height
-     * @param   {int} left
-     * @param   {int} top
+     * @param   {string} width
+     * @param   {string} height
+     * @param   {string} left
+     * @param   {string} top
      * @param   {string} img_url     URL for the image being loaded and embedded in the #gm_canvas element.
      * @param   {object} info_obj
      * @returns {string}             HTML for the canvas with embedded image.
@@ -209,8 +237,8 @@
 
         var message_cont = '<div id="gm_message_content"><div id="gm_message_text">'+message+'</div><div id="gm_reply_text">'+reply+'</div></div>';
 
-        var replace_array = [width+'px', height+'px', left+'px', top+'px', img_url];
-        var canvas_template = '<div id="gm_canvas" style="width: %s; height: %s; left: %s; top: %s;"><img src="%s"><div id="gm_img_close"><div id="gm_close">close [x]</div></div>'+ message_cont + title_bar +'</div></div></div></div>';
+        var replace_array = [width, height, img_url];
+        var canvas_template = '<div id="gm_canvas" style="width: %s; height: %s;"><img src="%s"><div id="gm_img_close"><div id="gm_close">close [x]</div></div>'+ message_cont + title_bar +'</div></div></div></div>';
 
         while (replace_array.length > 0)
         {
@@ -218,7 +246,7 @@
             replace_array.splice(0, 1);
         }
 
-        return canvas_template;
+        return '<div id="gm_canvas_wrapper" class="gm_swipe_area" style="top: '+top+'">' + canvas_template + '</div>';
     }
 
     /**
@@ -226,7 +254,7 @@
      */
     function back_drop_click()
     {
-        $(document).on('click', '#gm_drop_canvas', function(){
+        $(document).on('click', '#gm_drop_canvas, #gm_img_nav', function(){
             image_close();
         });
     }
@@ -236,7 +264,8 @@
      * @return {void}
      */
     function image_close() {
-        var canvas    = $(document).find('#gm_canvas');
+//        var canvas    = $(document).find('#gm_canvas');
+        var canvas    = $(document).find('#gm_canvas_wrapper');
         var back_drop = $(document).find('#gm_drop_canvas');
         var img_nav   = $(document).find('#gm_img_nav');
         var spinner   = $(document).find('#gm_spinner');
@@ -245,6 +274,8 @@
         back_drop.remove();
         img_nav.remove();
         spinner.remove();
+
+        $('body').unbind('touchmove');
     }
 
     function info_click() {
@@ -310,6 +341,80 @@
     }
 
     /**
+     * Uses the Tocca.js library at public/js/tocca/Tocca.min.js to handle left/right swipe navigation on mobile
+     */
+    function mobile_nav()
+    {
+        var body = $('body');
+        body.css({'touch-action': 'none'});
+
+        var is_mobile = check_mobile()
+
+        if (is_mobile === true)
+        {
+            var hover_elms = $(document).find('.gm_image_hover');
+
+            hover_elms.each( function () {
+                $(this).removeClass('gm_image_hover');
+            });
+        } else {
+            return false;
+        }
+
+        /* *************************************************
+         * - swipeleft triggers navigate to the next image.
+         * - swiperight find the previous image.
+         * *************************************************/
+        body.on('swipeleft', function () {
+            swipe_animate(39);
+        });
+
+        body.on('swiperight', function () {
+            swipe_animate(37);
+        });
+    }
+
+    /**
+     * Slides the #gm_canvas_wrapper element left or right outside of the screen's width and then simulates a
+     * click on the navigable image in the chosen direction.
+     *
+     * @param   keycode     Passed to the navigate() function used as a callback for the animate() call.
+     * @returns {boolean}   False if the #gm_canvas isn't present. Else, executes animation.
+     */
+    function swipe_animate(keycode)
+    {
+        if ( $(document).find('#gm_canvas').length < 1 )
+        {
+            return false;
+        }
+        console.log(keycode);
+
+        var canvas_wrapper = $(document).find('#gm_canvas');
+        var animate_rules;
+
+        var window_w = window.innerWidth + 50;
+
+        switch (keycode)
+        {
+            case 39:
+                animate_rules = {'right': window_w};
+                break;
+            case 37:
+                animate_rules = {'left': window_w};
+                break;
+            default:
+                animate_rules = null;
+        }
+
+        if ( animate_rules !== null )
+        {
+            canvas_wrapper.animate( animate_rules, function () {
+                navigate(keycode);
+            });
+        }
+    }
+
+    /**
      * Tries to navigate to the previous (left) or next (right) navigable image. If there are no navigable images
      * in the direction chosen, nothing happens. Else, destroy the current canvas/image and replace with the
      * new image that's been navigated to.
@@ -355,8 +460,9 @@
 
         var target_anchor = target_img.find('a');
 
-        $(document).find('#gm_canvas').remove();
-        target_anchor.click();
+        $.when( $(document).find('#gm_canvas_wrapper').remove() )
+         .then( target_anchor.click() );
+
     }
 
     /**
@@ -364,56 +470,18 @@
      */
     function navigate_arrows() {
 
+
         if ( $(document).find('#gm_img_nav').length < 1 )
         {
             var top = ( $(window).height() - 200) / 2;
 
             var nav_html = '<div id="gm_img_nav">';
-            nav_html    += '<div id="gm_nav_left"><div class="gm_nav_arrow" style="top:'+top+'px"> <i class="fa fa-angle-left fa-3x" style="top:'+top+'px" aria-hidden="true"></i> </div></div>';
-            nav_html    += '<div id="gm_nav_right"><div class="gm_nav_arrow" style="top:'+top+'px"> <i class="fa fa-angle-right fa-3x" style="top:'+top+'px" aria-hidden="true"></i> </div></div>';
+            nav_html    += '<div id="gm_nav_left" style="top:'+top+'px""><div class="gm_nav_arrow"> <i class="fa fa-angle-left fa-3x" aria-hidden="true"></i> </div></div>';
+            nav_html    += '<div id="gm_nav_right" style="top:'+top+'px""><div class="gm_nav_arrow"> <i class="fa fa-angle-right fa-3x" aria-hidden="true"></i> </div></div>';
             nav_html    += '</div>';
 
-            $('#gm_drop_canvas').append(nav_html);
+            $('#gm_canvas_wrapper').append(nav_html);
         }
-    }
-
-    /**
-     * This function adds left/right navigation arrows when there are navigable images in the chosen direction.
-     * Unnecessary since light/right navigation is now infinite.
-     *
-     * @deprecated  Lightbox is now infinite
-     * @param anchor_elm
-     */
-    function old_navigate_arrows(anchor_elm) {
-
-        var old_nav = $(document).find('#gm_img_nav');
-
-        if (old_nav.length > 0)
-        {
-            old_nav.remove();
-        }
-
-        var parent = anchor_elm.closest('.image_card');
-
-        var nav_html = '<div id="gm_img_nav">';
-
-        var img_left  = parent.prev('.image_card');
-        var img_right = parent.next('.image_card');
-
-        var top = ( $(window).height() - 90) / 2;
-
-        if ( is_empty(img_left) === false )
-        {
-            nav_html += '<div id="gm_nav_left"><div class="gm_nav_arrow" style="top:'+top+'px"> &lt; </div></div>';
-        }
-        if ( is_empty(img_right) === false )
-        {
-            nav_html += '<div id="gm_nav_right"><div class="gm_nav_arrow" style="top:'+top+'px"> &gt; </div></div>';
-        }
-
-        nav_html += '</div>';
-
-        $('#gm_drop_canvas').append(nav_html);
     }
 
     /**
@@ -421,7 +489,7 @@
      */
     function arrow_click()
     {
-        $('body').on('click', function(e){
+        $('body').on('click', function(e) {
             if ( $(e.target).is('.gm_nav_arrow') || $(e.target).is('.gm_nav_arrow .fa') )
             {
                 // Stop bubble to backdrop so the canvas/backdrop/arrows aren't closed
@@ -445,11 +513,37 @@
         });
     }
 
+    /**
+     * Trigger's image_close when the '[x] close' button on the lightbox is clicked.
+     */
     function click_close()
     {
         $(document).on('click', '#gm_img_close', function() {
             image_close();
         });
+    }
+
+    /**
+     * Destroys and rebuilds the currently viewed lightbox image on portrait/landscape switch. Otherwise the lightbox
+     * would stay the same size and wouldn't fit the screen.
+     */
+    function orientation_change()
+    {
+        window.addEventListener( 'orientationchange', function() {
+
+            var canvas = $(document).find('#gm_canvas_wrapper');
+
+            if ( canvas.length < 1 )
+            {
+                return false;
+            }
+
+            var active = $(document).find('.gm_img_active');
+            var active_a = active.find('a');
+
+            active.removeClass('gm_img_active');
+            active_a.click();
+        }, false);
     }
 
     /**
@@ -463,6 +557,29 @@
         return (!str || 0 === str.length);
     }
 
+    /**
+     * Checks the value at gm_js.is_mobile, which is set in the gm-communit-gallery.php page using wp_is_mobile()
+     *
+     * @returns     {boolean}   Returns true if wp_is_mobile() returned true. Else, false.
+     */
+    function check_mobile()
+    {
+        var is_mobile = parseInt( gm_js.is_mobile );
+
+        switch ( is_mobile )
+        {
+            case 1:
+                return true;
+                break;
+            case 0:
+                return false;
+                break;
+            default:
+                return false;
+                break;
+        }
+    }
+
     /* *********************
      * - Do lightbox things
      * *********************/
@@ -473,5 +590,7 @@
     click_close();
     back_drop_click();
     keyboard_nav();
+    mobile_nav();
+    orientation_change();
 
 })(jQuery);
