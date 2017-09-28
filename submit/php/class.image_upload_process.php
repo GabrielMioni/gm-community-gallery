@@ -162,7 +162,7 @@ class image_upload_process
 
     /**
      * Checks if the submitted file exists and is valid. If everything is good, try to upload the image. Populates
-     * $error_array[$image_index] with values if errors are found.
+     * $error_array[$image_index] with values if errors are found. Also passes the file extension to $this->input['type'].
      *
      * @param       $image_index    string          The index for the $_FILE element we're interested in.
      * @param       array           $error_array    Array that holds
@@ -212,6 +212,9 @@ class image_upload_process
         $extension = substr($file_name, strrpos($file_name, '.') + 1);
 
         $_SESSION['ext'] = $extension;
+
+        // Add the file extension to $this->input_data
+        $this->input_data['type'] = $extension;
 
         if (!in_array($extension, $short_mimes))
         {
