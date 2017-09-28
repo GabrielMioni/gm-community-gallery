@@ -38,14 +38,18 @@ class public_gallery extends gallery
     {
         $id = $this->set_value($image_data['id']);
         $title = $this->set_value($image_data['title']);
+        $type  = $this->set_value($image_data['type']);
 
-        $submitter = ctype_space($image_data['name'])    ? '' : $this->remove_slashes_convert_chars($image_data['name']);
-        $message   = ctype_space($image_data['message']) ? '' : $this->convert_nl2p($image_data['message']);
-        $comment   = ctype_space($image_data['comment']) ? '' : $this->convert_nl2p($image_data['comment']);
+        $submitter = ctype_space($image_data['name'])    ? '' : '<span class="gm_submitter">'. $this->remove_slashes_convert_chars($image_data['name']) .'</span>';;
+        $message   = ctype_space($image_data['message']) ? '' : '<span class="gm_message">' . $this->convert_nl2p($image_data['message']) . '</span>';
+        $comment   = ctype_space($image_data['comment']) ? '' : '<span class="gm_reply">' . $this->convert_nl2p($image_data['comment']) . '</span>';
 
 
-        $image_file  = $id . '.jpg';
+        $jpg = "$id.jpg";
+        $image_file = "$id.$type";
         $gallery_url = $this->get_gallery_url();
+
+        $hidden_img_span = $type !== 'jpg' ? "<span class='gm_hidden_url'>". $gallery_url . 'images/' . $id . '.' . $type ."</span>" : '';
 
         $is_mobile = wp_is_mobile();
 
@@ -54,7 +58,7 @@ class public_gallery extends gallery
         {
             $image_url .= $gallery_url .'images/' . $image_file;
         } else {
-            $image_url .= $gallery_url .'thumbs/' . $image_file;
+            $image_url .= $gallery_url .'thumbs/' . $jpg;
         }
 
 
@@ -62,13 +66,14 @@ class public_gallery extends gallery
 
         $div = "<div class='image_card'>
                     <div class='image_frame'>
+                        $hidden_img_span
                         <span class='helper'></span><img src='$image_url'><a class='gm_image_hover' href='$link_url'><span>$title</span></a>
                     </div>
                     <div class='gm_hidden_info'>
                         <span class='gm_title'>$title</span>
-                        <span class='gm_submitter'>$submitter</span>
-                        <span class='gm_message'>$message</span>
-                        <span class='gm_reply'>$comment</span>                        
+                        $submitter
+                        $message
+                        $comment                        
                     </div>
                 </div>";
 
