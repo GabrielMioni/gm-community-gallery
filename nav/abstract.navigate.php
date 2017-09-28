@@ -23,9 +23,12 @@ abstract class navigate
     /** @var array Holds $_POST or $_GET values */
     protected $input_array = array();
 
+    protected $show_trash;
+
     // Concrete constructors will populate $ths->input_array()
-    public function __construct()
+    public function __construct($show_trash = false)
     {
+        $this->show_trash = $show_trash;
         // Nothing to see here.
     }
 
@@ -257,6 +260,18 @@ abstract class navigate
         $query .= ' LIMIT %d, %d';
         $args[] = $limit_start;
         $args[] = $limit_stop;
+    }
+
+    protected function append_query_trash(&$where_query)
+    {
+        $show_trash = $this->show_trash;
+
+        if ( $show_trash === true)
+        {
+            $where_query .= ' trash = 1 ';
+        } else {
+            $where_query .= ' trash = 0 ';
+        }
     }
 
     /**
