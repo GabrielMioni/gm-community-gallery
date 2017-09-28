@@ -4,17 +4,21 @@ namespace GM_community_gallery\submit;
 
 /**
  * Stage an uploaded image and then resize and store images in the 'images' and 'thumbs' directories at
- * wp-content/uploads/gm-community-submit/ .
+ * wp-content/uploads/gm-community-gallery/
  *
  * Allowed MIME types are .jpg/.jpeg, .png and .gif. By default, .jpeg/.png images are converted to .jpg
  *
- * During the upload, a unique 6 digit alphabetic ID is created. If the upload is successful, $this->upload_flag is
- * set to the new ID's value. If the upload fails, $this->upload_flag will be false.
+ * During the upload, a unique 6 digit alphabetic ID is created. If the upload is successful, uploader::upload_flag is
+ * set to the new ID's value. If the upload fails, uploader::upload_flag will be false.
  */
 class uploader
 {
     /** @var bool|string  */
-    protected $upload_flag;
+    protected $new_id;
+
+    protected $file     = array();
+    protected $handle   = array();
+    protected $stage;
 
     protected $max_thumb_w = 300;
     protected $max_thumb_h = 400;
@@ -24,52 +28,18 @@ class uploader
 
     public function __construct()
     {
-        $this->upload_flag = $this->upload_image('image');
+        $this->file     = $this->check_file_upload('image');
+        $this->new_id   = $this->get_new_id();
+
+        $this->handle   = $this->stage_image($this->file);
+
+        $this->save_thumb($this->handle, $this->new_id);
+        $this->save_large($this->handle, $this->new_id);
     }
 
-    /**
-     * Temporarily stages the uploaded image and saves re-sized copies in gm-community-submit subdirectories (thumbs and images)
-     *
-     * @param   $image_index  string    The index used to specify the $_FILE element for the image being uploaded.
-     * @return  bool|string
-     */
-    protected function upload_image($image_index)
+    protected function check_file_upload($image_index)
     {
-        // If the image doesn't exist, fail
-        if ( ! isset($_FILES[$image_index]))
-        {
-            return false;
-        }
-
-        // If an ID couldn't be created, fail
-        $image_id = $this->get_new_id();
-        if ($image_id === false)
-        {
-            return false;
-        }
-
-        $file = $_FILES[$image_index];
-
-        // Stage the image
-        $staged_image = $this->stage_image($file);
-
-        if (!is_wp_error($staged_image))
-        {
-            $upload_location = $staged_image['file'];
-
-            // Save the thumbnail
-            $this->resize_and_save('thumbs', $image_id, $upload_location, $this->max_thumb_w, $this->max_thumb_h);
-
-            // Save the image
-            $this->resize_and_save('images', $image_id, $upload_location, $this->max_image_w, $this->max_image_h);
-
-            // Removed the staged file
-            unlink($upload_location);
-
-            return $image_id;
-        }
-
-        return false;
+        return isset( $_FILES[$image_index] ) ? $_FILES[$image_index] : false;
     }
 
     /**
@@ -87,14 +57,13 @@ class uploader
 
     /**
      * Temporarily modifies the upload location WordPress uses to stage an uploaded image at wp-content/uploads/gm-community-submit
-     * 
+     *
      * Once the image is staged, convert to .jpg if necessary.
-     * 
+     *
      * @param   $file   array   Specific element of $_FILE
-     * @return          array   Returns $handle from wp_handle_uploads. If it was necessary to convert to .jpg,
-     *                          $handle['file'] will be set with the new .jpg's directory/filename.
+     * @return          array   Returns $handle from wp_handle_uploads. Associative array: 'file' / 'url' / 'type'
      */
-    protected function stage_image($file)
+    protected function stage_image(array $file)
     {
         if ( ! function_exists('wp_handle_upload') )
         {
@@ -108,11 +77,6 @@ class uploader
         add_action('upload_dir', array( &$this, 'set_to_gm_community_gallery_directory'));
         $handle = wp_handle_upload($file, $upload_overrides);
 
-        // If wp_handle_upload worked, check if it's necessary to convert the uploaded file to .jpg.
-        if (!is_wp_error($handle))
-        {
-            $this->convert_to_jpg($handle);
-        }
         // Return default upload directory
         remove_action('upload_dir', array( &$this, 'set_to_gm_community_gallery_directory'));
 
@@ -120,49 +84,126 @@ class uploader
     }
 
     /**
+     * Saves a thumbnail sized version of the image.
+     *
+     * @param array $handle     Created by wp_handle_upload() in uploader::stage_image()
+     * @param $image_id         string  The id for the image.
+     * @return bool             True if image was saved. Else false.
+     */
+    function save_thumb(array $handle, $image_id)
+    {
+        $type = $handle['type'];
+
+        $is_png  = $type === 'image/png'  ? true : false;
+        $is_jpeg = $type === 'image/jpeg' ? true : false;
+        $is_gif  = $type === 'image/gif'  ? true : false;
+
+        $original_location = $handle['file'];
+
+        if ( $is_png || $is_jpeg || $is_gif )
+        {
+            $original_location = $this->convert_to_jpg($handle);
+        }
+
+        if ( $original_location !== false )
+        {
+            $save_location = $this->create_save_location('thumbs', $image_id, 'jpg');
+            return $this->resize_and_save($save_location, $original_location, $this->max_thumb_w, $this->max_thumb_h);
+        }
+
+        return false;
+    }
+
+    /**
+     * Saves a large image sized version of the image.
+     *
+     * @param array $handle     Created by wp_handle_upload() in uploader::stage_image()
+     * @param $image_id         string  The id for the image.
+     * @return bool             True if image was saved. Else false.
+     */
+    function save_large(array $handle, $image_id)
+    {
+        $type = $handle['type'];
+
+        $is_png  = $type === 'image/png'  ? true : false;
+        $is_jpeg = $type === 'image/jpeg' ? true : false;
+        $is_gif  = $type === 'image/gif'  ? true : false;
+
+        $original_location = $handle['file'];
+
+        if ( $is_gif )
+        {
+            $save_location = $this->create_save_location('images', $image_id, 'gif');
+
+            return copy($original_location, $save_location);
+        }
+
+        if ( $is_png || $is_jpeg )
+        {
+            $original_location = $this->convert_to_jpg($handle);
+        }
+
+        if ( $original_location !== false )
+        {
+            $save_location = $this->create_save_location('thumbs', $image_id, 'jpg');
+            return $this->resize_and_save($save_location, $original_location, $this->max_image_w, $this->max_image_h);
+        }
+    }
+
+    /**
+     * Returns the new directory/file name for the image.
+     *
+     * @param   $save_dir   string  Directory in wp-content/uploads/ where the image should be saved.
+     * @param   $image_id   string  Id for the image.
+     * @param   $ext        string  File extension
+     * @return  string  The full file path where the image should be saved.
+     */
+    function create_save_location($save_dir, $image_id, $ext)
+    {
+        $wp_uploads_dir = wp_get_upload_dir();
+        $wp_uploads_dir_base = $wp_uploads_dir['basedir'];
+
+        return  $wp_uploads_dir_base . "/gm-community-gallery/$save_dir/" . $image_id . '.' . $ext;
+    }
+
+    /**
      * Converts the uploaded image to .jpg if the original was either .png or .jpeg.
      *
      * @param   $handle     array   Associative array returned by wp_handle_upload().
+     * @return  bool                True if image was converted. Else false.
      */
     protected function convert_to_jpg(&$handle)
     {
-        // Tell me of your homeworld, Usul.
-        $is_png  = $handle['type'] === 'image/png'  ? true : false;
-        $is_jpeg = $handle['type'] === 'image/jpeg' ? true : false;
+        $file = $handle['file'];
+        $type = $handle['type'];
 
-        // If this is a .png, convert it to a .jpg
-        if ($is_png || $is_jpeg)
+        $img = null;
+
+        switch ($type)
         {
-            $file = $handle['file'];
+            case 'image/png':
+                $img  = imagecreatefrompng($file);
+                break;
+            case 'image/jpeg':
+                $img = imagecreatefromjpeg($file);
+                break;
+            case 'image/gif':
+                $img = imagecreatefromgif($file);
+                break;
+            default:
+                break;
+        }
 
-            // Get the new .jpg directory.
+        if ( $img !== null )
+        {
             $new_file = $this->replace_extension($file);
-
-            $img = null;
-
-            switch ($handle['type'])
-            {
-                case 'image/png':
-                    $img  = imagecreatefrompng($file);
-                    break;
-                case 'image/jpeg':
-                    $img = imagecreatefromjpeg($file);
-                    break;
-                default:
-                    // Should not be possible
-                    break;
-            }
-
-            $quality = 100;
+            $quality  = 100;
             imagejpeg($img, $new_file, $quality);
             imagedestroy($img);
-
-            // Replace the value at $handle['file'] with the new .jpg's directory and filename.
-            $handle['file'] = $new_file;
-
-            // Destroy the temporarily staged image.
-            unlink($file);
+            return $new_file;
         }
+
+        return false;
     }
 
     /**
@@ -173,8 +214,8 @@ class uploader
      */
     function replace_extension($filename) {
         $info = pathinfo($filename);
-
         $directory = $info['dirname'];
+
         $jpg_file  = $info['filename'] . '.' . 'jpg';
 
         return $directory . '/' . $jpg_file;
@@ -196,21 +237,16 @@ class uploader
     }
 
     /**
-     * Re-sizes image if necessary and saves the image in a subdirectory of /uploads/gm-community-submit
+     * Resizes the image at $staged_location and saves a resized copy at $save_loaction.
      *
-     * @param $save_dir         string  The subdirectory of /uploads/gm-community-submit/ where the image is saved.
-     * @param $image_name       string  The name of the image file.
-     * @param $staged_location  string  Where the uploaded image is temporarily staged.
-     * @param $max_w            int     The px value for max width.
-     * @param $max_h            int     The px value for max height.
-     * @return bool             False if edit failed. Else, true.
+     * @param   $save_location      string New file directory where the image is saved
+     * @param   $staged_location    string Staged file directory
+     * @param   $max_w              int    Max width
+     * @param   $max_h              int    Max height
+     * @return  bool                       true if image the wp_get_image_editor object was created.
      */
-    protected function resize_and_save($save_dir, $image_name, $staged_location, $max_w, $max_h)
+    protected function resize_and_save($save_location, $staged_location, $max_w, $max_h)
     {
-        $wp_uploads_dir = wp_get_upload_dir();
-        $wp_uploads_dir_base = $wp_uploads_dir['basedir'];
-        $save_location = $wp_uploads_dir_base . "/gm-community-gallery/$save_dir/" . $image_name;
-
         $image_edit = wp_get_image_editor($staged_location);
 
         if (is_wp_error($image_edit))
@@ -225,11 +261,24 @@ class uploader
     }
 
     /**
+     * Get rid of the staged image.
+     *
+     * @param array $handle Associated array created by wp_handle_upload(), called in uploader::stage_image();
+     */
+    function clean_handle(array $handle)
+    {
+        if ( isset($handle['file']) )
+        {
+            unlink( $handle['file'] );
+        }
+    }
+
+    /**
      * @return bool|string  False if the upload was not succesful. Else, return the ID created by $this->get_new_id();
      */
     public function return_upload_flag()
     {
-        return $this->upload_flag;
+        return $this->new_id;
     }
 
 }
