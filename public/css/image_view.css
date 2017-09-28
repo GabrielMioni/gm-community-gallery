@@ -1,0 +1,39 @@
+#gm_image_view {
+    text-align: center;
+}
+
+#gm_image_view #gm_image_wrapper {
+    background-color: #efefef;
+    display: inline-block;
+}
+
+#gm_image_wrapper > div {
+    text-align: left;
+}
+
+h3#gm_title {
+    font-size: 20px;
+    padding-left: 5px;
+    padding-top: 10px;
+    text-align: left;
+}
+
+#gm_image, #gm_info {
+    max-width: 700px;
+    vertical-align: top;
+}
+
+#gm_info {
+    box-sizing: border-box;
+    padding: 15px;
+}
+
+#gm_message p {
+    margin: 0 0 10px;
+}
+
+#gm_info #gm_comment {
+    border-left: 5px solid #3875D7;
+    margin-top: 5px;
+    padding-left: 10px;
+}
