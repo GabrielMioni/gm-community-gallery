@@ -1,0 +1,57 @@
+/* General GM Community Gallery CSS */
+
+#gm_community_gallery {
+    min-width: 90%;
+    text-align: left;
+}
+
+.image_card {
+    background-color: snow;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    display: inline-block;
+/*    height: 223px; */
+    margin: 5px;
+    overflow: hidden;
+    text-align: center;
+    width: 223px;
+    vertical-align: top;
+}
+
+.image_card .info {
+    text-align: left;
+    width: 100%;
+}
+
+.image_frame {
+    display: inline-block;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.helper {
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+}
+
+.image_frame > img {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.image_frame > a {
+    color: transparent;
+    display: inline-block;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    text-decoration: none;
+    top: 0;
+    width: 100%;
+    -webkit-transition: background-color 250ms;
+    -ms-transition: background-color 250ms;
+    transition: background-color 250ms;
+}
