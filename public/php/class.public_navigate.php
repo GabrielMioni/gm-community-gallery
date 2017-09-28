@@ -13,8 +13,10 @@ require_once(GM_GALLERY_DIR . '/nav/abstract.navigate.php');
 
 class public_navigate extends navigate
 {
-    public function __construct()
+    public function __construct($show_trash = false)
     {
+        parent::__construct($show_trash);
+
         $this->input_array['name']     = $this->check_post_or_get_for_value('name');
         $this->input_array['title']    = $this->check_post_or_get_for_value('title');
         $this->input_array['paginate'] = $this->check_post_or_get_for_value('paginate');
@@ -47,6 +49,8 @@ class public_navigate extends navigate
 
         $where_query = '';
 
+        $this->append_query_trash($where_query);
+
         $this->append_query_input('name', $name, $where_query, $args);
         $this->append_query_input('title', $title, $where_query, $args);
 
@@ -55,6 +59,7 @@ class public_navigate extends navigate
         $this->append_query_date($date, $where_query, $args);
 
         $this->append_query_where($query, $where_query);
+
 
         $query .= ' ORDER BY created';
 
@@ -65,5 +70,10 @@ class public_navigate extends navigate
         $tmp['args']  = $args;
 
         return $tmp;
+    }
+
+    protected function append_query_trash(&$where_query)
+    {
+        $where_query .= ' trash = 0';
     }
 }

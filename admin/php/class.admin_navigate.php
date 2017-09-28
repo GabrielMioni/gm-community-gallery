@@ -21,8 +21,10 @@ use GM_community_gallery\nav\navigate as navigate;
  */
 class admin_navigate extends navigate
 {
-    public function __construct()
+    public function __construct($show_trash = false)
     {
+        parent::__construct($show_trash);
+
         $this->input_array['paginate'] = $this->check_post_or_get_for_value('paginate');
         $this->input_array['name']     = $this->check_post_or_get_for_value('name');
         $this->input_array['title']    = $this->check_post_or_get_for_value('title');
@@ -76,6 +78,8 @@ class admin_navigate extends navigate
 
         $this->append_query_date($date, $where_query, $args);
 
+        $this->append_query_trash($where_query);
+
         $this->append_query_where($query, $where_query);
 
         $query .= ' ORDER BY created';
@@ -89,5 +93,15 @@ class admin_navigate extends navigate
         return $tmp;
 
     }
-
+/*
+    protected function append_query_trash(&$where_query)
+    {
+        if ( $this->trash === true)
+        {
+            $where_query .= ' trash = 1 ';
+        } else {
+            $where_query .= ' trash = 0 ';
+        }
+    }
+*/
 }
