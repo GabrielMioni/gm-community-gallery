@@ -1,15 +1,35 @@
+/* Admin Gallery */
+
 #gm_settings_gallery {
 /*    position: absolute; */
 }
 
+/*
 .image_card {
-/*    background-color: #ffe0b2; */
     display: inline-block;
     margin-right: 5px;
     margin-top: 5px;
     min-height: 280px;
     padding: 5px;
     vertical-align: top;
+}
+*/
+
+.image_card {
+    padding: 3px;
+}
+
+.image_card .gm_img_title {
+    text-align: left;
+}
+
+.image_card .gm_img_title > div {
+    display: inline-block;
+    max-width: 89%;
+}
+
+.image_card .gm_img_title .fa {
+    float: right;
 }
 
 .image_card img {
@@ -19,33 +39,28 @@
 }
 
 .image_frame {
-    display: block;
-    height: 100%;
-    left: 0;
-    position: relative;
-    text-align: center;
-    top: 0;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    padding-bottom: 5px;
+    padding-top: 5px;
     width: 100%;
 }
 
-.image_frame > a {
-    height: 100%;
-    left: 0;
-    position: absolute;
-    top: 0;
-    width: 100%;
-}
-
-.image_frame > a:hover {
+.image_frame > a:hover,
+.image_frame > a.gm_hidden_filter:hover {
     background-color: rgba(255,255,255, .4);
-    -webkit-transition: background-color 250ms;
-    -ms-transition: background-color 250ms;
-    transition: background-color 250ms;
 }
 
-/*
- Edit Page
- */
+.image_frame a.gm_hidden_filter {
+/*    background-color: rgba(255, 255, 255, 0.7); */
+/*    background-color: rgba(255, 255, 191, 0.4); */
+    background-color: rgba(253, 227, 167, 0.4);
+}
+
+
+
+/* **********************
+ * Edit Page
+ * **********************/
 
 .wrap #image_edit_card {
     position: relative;
@@ -85,12 +100,48 @@
     float: right;
 }
 
+#gm_bulk_action_row {
+/*    margin: 0 auto; */
+    max-width: 98%;
+    padding: 5px;
+/*    padding-bottom: 5px;
+    padding-top: 5px; */
+}
+
+#gm_bulk_action_row input[type="checkbox"] {
+    margin: 0;
+}
+
+#gm_bulk_action_row > input[type="checkbox"] {
+    margin-top: 5px;
+}
+
+#gm_bulk_action_row .gm_response {
+    display: inline-block;
+    font-size: 1.2em;
+    font-style: italic;
+    font-weight: 800;
+    height: 23px;
+    margin-bottom: 0;
+    margin-left: 20px;
+    margin-top: 0;
+    vertical-align: top;
+}
+
+.success {
+    border-left-color: #3875D7;
+}
+
 #gm_image_delete {
     background-color: red;
     border-color: #B51806;
     box-shadow: 0 1px #B51806;
     color: white;
     text-shadow: 0 -1px 1px #B51806;
+/*    float: left; */
+}
+
+#gm_image_delete .gm_set_float_left {
     float: left;
 }
 
