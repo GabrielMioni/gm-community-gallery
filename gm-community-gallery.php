@@ -90,19 +90,20 @@ function gm_gallery_create_sql_db()
     $tablename = GM_GALLERY_TABLENAME;
 
     $create_table =
-        "CREATE TABLE $tablename (
-            `id` CHAR(6) PRIMARY KEY NOT NULL,
-            `type` CHAR(4),
-            `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            `email` VARCHAR(100),
-            `ip` VARCHAR(10),
-            `name` VARCHAR(100),
-            `title` VARCHAR(200),
-            `message` VARCHAR(600),
-            `comment` VARCHAR(600),
-            `tags` VARCHAR(600),
-            `trash` TINYINT(1) NOT NULL DEFAULT 0
-        );";
+        "CREATE TABLE IF NOT EXISTS $tablename (
+              `id` char(6) NOT NULL,
+              `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              `email` varchar(100) DEFAULT NULL,
+              `ip` varchar(45) DEFAULT NULL,
+              `name` varchar(100) DEFAULT NULL,
+              `title` varchar(200) DEFAULT NULL,
+              `message` varchar(600) DEFAULT NULL,
+              `tags` varchar(600) DEFAULT NULL,
+              `comment` varchar(600) DEFAULT NULL,
+              `trash` tinyint(1) NOT NULL DEFAULT '0',
+              `hidden` tinyint(1) NOT NULL DEFAULT '0',
+              `type` varchar(4) NOT NULL DEFAULT 'jpg'
+            );";
 
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
@@ -112,10 +113,10 @@ function gm_gallery_create_sql_db()
 /* *******************************
  * - Register Submit Form CSS
  * *******************************/
-add_action( 'wp_enqueue_scripts', 'gm_register_gallery_css' );
-function gm_register_gallery_css()
+add_action( 'wp_enqueue_scripts', 'gm_register_submit_form_css');
+function gm_register_submit_form_css()
 {
-    wp_register_style( 'gm-gallery-css', plugins_url( 'submit/css/gm-gallery.css', __FILE__ ), array(), GM_GALLERY_VERSION, 'all' );
+    wp_register_style( 'gm-submit-css', plugins_url( 'submit/css/gm-gallery.css', __FILE__ ), array(), GM_GALLERY_VERSION, 'all' );
 }
 
 /* *******************************
@@ -125,6 +126,25 @@ add_action( 'wp_enqueue_scripts', 'gm_register_pagination_css' );
 function gm_register_pagination_css()
 {
     wp_register_style( 'gm-pagination-css', plugins_url( 'nav/css/pagination.css', __FILE__ ), array(), GM_GALLERY_VERSION, 'all' );
+}
+
+/* *******************************
+ * - Register Gallery CSS
+ * - Used in both public/admin galleries
+ * *******************************/
+add_action( 'wp_enqueue_scripts', 'gm_register_gallery_css');
+function gm_register_gallery_css()
+{
+    wp_register_style( 'gm-gallery-css', plugins_url( 'nav/css/gallery.css', __FILE__ ), array(), GM_GALLERY_VERSION, 'all' );
+}
+
+/* *******************************
+ * - Register Public Gallery CSS
+ * *******************************/
+add_action( 'wp_enqueue_scripts', 'gm_register_public_css' );
+function gm_register_public_css()
+{
+    wp_register_style( 'gm-public-css', plugins_url( 'public/css/gallery.css', __FILE__ ), array(), GM_GALLERY_VERSION, 'all' );
 }
 
 
@@ -138,7 +158,7 @@ function gm_gallery_form_shortcode()
     require_once('submit/php/class.image_upload_form.php');
 
     // Add the gm-contact.css file
-    wp_enqueue_style('gm-gallery-css');
+    wp_enqueue_style('gm-submit-css');
 
     $auto_p_flag = false;
 
@@ -167,14 +187,6 @@ function gm_register_font_awesome()
     wp_register_style('gm-font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css', GM_GALLERY_VERSION, 'all');
 }
 
-/* *******************************
- * - Register Public Gallery CSS
- * *******************************/
-add_action( 'wp_enqueue_scripts', 'gm_register_public_css' );
-function gm_register_public_css()
-{
-    wp_register_style( 'gm-public-css', plugins_url( 'public/css/gallery.css', __FILE__ ), array(), GM_GALLERY_VERSION, 'all' );
-}
 
 /* *********************
  * - Register Public JS
@@ -185,7 +197,6 @@ function gm_register_public_js()
 {
     $is_mobile = wp_is_mobile() === true ? 1 : 0;
     $gif_url = plugins_url('public/images/', __FILE__);
-    wp_localize_script('gm-public-js', 'gm_js', array( 'is_mobile' => $is_mobile, 'loading_gif' => $gif_url ) );
 
     if ( $is_mobile === 1 )
     {
@@ -194,6 +205,8 @@ function gm_register_public_js()
     }
 
     wp_register_script( 'gm-public-js', plugins_url( 'public/js/gm_lightbox.js', __FILE__ ), array( 'jquery'), GM_GALLERY_VERSION, true );
+
+    wp_localize_script('gm-public-js', 'gm_js', array( 'is_mobile' => $is_mobile, 'loading_gif' => $gif_url ) );
 }
 
 
@@ -205,6 +218,7 @@ function gm_register_public_js()
 add_shortcode('gm-public-gallery', 'gm_public_gallery_shortcode');
 function gm_public_gallery_shortcode()
 {
+    wp_enqueue_style('gm-gallery-css');
     wp_enqueue_style('gm-public-css');
     wp_enqueue_style('gm-font-awesome');
     wp_enqueue_script('gm-public-js');
@@ -235,7 +249,8 @@ function gm_public_gallery_shortcode()
         remove_filter( 'the_excerpt', 'wpautop' );
     }
 
-    $public_navigate = new GM_community_gallery\_public\public_navigate();
+    $show_trash = false;
+    $public_navigate = new GM_community_gallery\_public\public_navigate($show_trash);
 
     $build_public_gallery = new GM_community_gallery\_public\public_gallery($public_navigate);
     $build_public_pagination = new pagination($public_navigate);
@@ -255,21 +270,65 @@ function gm_public_gallery_shortcode()
  * - Settings Page
  * *******************************/
 
-add_action( 'wp_enqueue_scripts', 'gm_register_gallery_css' );
+add_action( 'wp_enqueue_scripts', 'gm_register_submit_form_css');
 function gm_register_settings_css()
 {
     wp_enqueue_style( 'gm-gallery-settings-css', plugins_url( 'admin/css/gm-gallery-settings.css', __FILE__ ), array(), GM_GALLERY_VERSION, 'all' );
 }
 
+function gm_print_gallery_css_for_admin()
+{
+    wp_enqueue_style( 'gm-admin-gallery-css', plugins_url( 'nav/css/gallery.css', __FILE__ ), array(), GM_GALLERY_VERSION, 'all' );
+}
+
+function gm_print_font_awesome_for_admin()
+{
+    wp_enqueue_style('gm-adming-font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css', GM_GALLERY_VERSION, 'all');
+}
+
+function gm_enqueue_admin_js()
+{
+    wp_enqueue_script('gm-adming-js', plugins_url( 'admin/js/admin.js', __FILE__ ), array( 'jquery'), GM_GALLERY_VERSION, true);
+}
+
 add_action( 'admin_menu', 'gm_community_gallery_menu' );
 function gm_community_gallery_menu()
 {
-    $menu = add_menu_page( 'GM Community Gallery', 'GM Community Gallery', 'manage_options', 'gm-community-gallery', 'gm_community_options' );
+    $gallery_count = gm_get_gallery_count();
+    $trash_count = gm_get_gallery_count(true);
 
+    $admin_title = "Admin Gallery ($gallery_count)";
+    $trash_title = "Trash ($trash_count)";
+
+
+    $menu = add_menu_page('GM Community Gallery', 'GM Community Gallery', 'manage_options', 'gm-community-gallery', 'gm_community_admin_gallery' );
+    add_submenu_page('gm-community-gallery', $admin_title, $admin_title, 'manage_options', 'gm-community-gallery' );
+    $trash_sub = add_submenu_page('gm-community-gallery', $trash_title, $trash_title, 'manage_options', 'gm-community-trash', 'gm_community_admin_trash');
+
+    add_action( 'admin_init', 'gm_enqueue_admin_js');
+    add_action( 'admin_print_styles-' . $menu, 'gm_print_gallery_css_for_admin');
     add_action( 'admin_print_styles-' . $menu, 'gm_register_settings_css' );
+    add_action( 'admin_print_styles-' . $menu, 'gm_print_font_awesome_for_admin' );
+
+    add_action( 'admin_print_styles-' . $trash_sub, 'gm_print_gallery_css_for_admin');
+    add_action( 'admin_print_styles-' . $trash_sub, 'gm_register_settings_css' );
+    add_action( 'admin_print_styles-' . $trash_sub, 'gm_print_font_awesome_for_admin' );
 }
 
-function gm_community_options()
+function gm_get_gallery_count($trash = false)
+{
+    global $wpdb;
+
+    $trash_value = $trash === false ? 0 : 1;
+
+    $query = "SELECT count(*) FROM " . GM_GALLERY_TABLENAME . " WHERE trash = $trash_value";
+
+    $results = $wpdb->get_var($query);
+
+    return $results;
+}
+
+function gm_community_admin_gallery()
 {
     if ( !current_user_can( 'manage_options' ) )
     {
@@ -287,13 +346,22 @@ function gm_community_options()
 
     } else {
 
+        $trash_count = gm_get_gallery_count();
+
+        if ($trash_count < 1)
+        {
+            echo "Nothing here.";
+            return false;
+        }
+
         require_once('admin/php/class.admin_navigate.php');
         require_once('admin/php/class.admin_gallery.php');
         require_once('admin/php/class.admin_search_form.php');
         require_once('nav/class.pagination.php');
 
         // Build the navigate object
-        $admin_navigate = new GM_community_gallery\admin\admin_navigate();
+        $show_trash = false;
+        $admin_navigate = new GM_community_gallery\admin\admin_navigate($show_trash);
 
         // Build gallery
         $admin_gallery  = new GM_community_gallery\admin\admin_gallery($admin_navigate);
@@ -315,6 +383,55 @@ function gm_community_options()
 
     echo '</div>';
 }
+
+function gm_community_admin_trash()
+{
+    if ( !current_user_can( 'manage_options' ) )
+    {
+        wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+    } else {
+
+        $trash_count = gm_get_gallery_count(true);
+
+        if ($trash_count < 1)
+        {
+            echo "Nothing here.";
+            return false;
+        }
+
+        echo '<div class="wrap">';
+
+        require_once('admin/php/class.admin_navigate.php');
+        require_once('admin/php/class.admin_gallery_trash.php');
+        require_once('admin/php/class.admin_search_form.php');
+        require_once('nav/class.pagination.php');
+
+        // Build the navigate object
+        $show_trash = true;
+        $admin_navigate = new GM_community_gallery\admin\admin_navigate($show_trash);
+
+        // Build gallery
+        $admin_gallery  = new GM_community_gallery\admin\admin_gallery_trash($admin_navigate);
+        $html_gallery = $admin_gallery->return_gallery_html();
+
+        // Build pagination
+        $admin_pagination = new pagination($admin_navigate);
+        $html_pagination = $admin_pagination->return_pagination_html();
+/*
+        // Build Search Form
+        $admin_search_form = new \GM_community_gallery\admin\admin_search_form();
+        $html_search_form  = $admin_search_form->return_search_form();
+*/
+        // Display everything
+//        echo $html_search_form;
+        echo $html_pagination;
+        echo $html_gallery;
+
+        echo '</div>';
+    }
+}
+
+
 
 /* *******************************
  * - API Handler for non-Ajax
@@ -357,5 +474,17 @@ function gm_admin_search()
         require_once('admin/php/class.admin_search_process.php');
 
         new \GM_community_gallery\admin\admin_search_process();
+    }
+}
+
+add_action('init', 'gm_admin_mass_action');
+function gm_admin_mass_action()
+{
+    $api_set = isset($_GET['gm_community_mass_action']);
+
+    if ($api_set === true)
+    {
+        require_once('admin/php/class.admin_mass_action.php');
+        new \GM_community_gallery\admin\admin_mass_action();
     }
 }
