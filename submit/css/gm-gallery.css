@@ -19,9 +19,16 @@ form#gm-gallery {
 #gm-gallery textarea
 {
     display: block;
-    min-width: 100%;
+/*    min-width: 100%; */
     border-radius: 0;
     height: 27px;
+}
+
+#gm-gallery label.gm_full_width,
+#gm-gallery input[type='text'].gm_full_width,
+#gm-gallery input[type='file'].gm_full_width,
+#gm-gallery textarea.gm_full_width {
+    min-width: 100%;
 }
 
 #content input[type="text"],
