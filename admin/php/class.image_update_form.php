@@ -42,9 +42,9 @@ class image_update_form extends image_view
     protected function build_view(array $image_data)
     {
         $id = $image_data['id'];
-//        $thumb_url = $this->get_gallery_url('thumbs') . $id . '.jpg';
-        $thumb_url = $this->get_gallery_url('images') . $id . '.jpg';
-        $image_url = $this->get_gallery_url('images') . $id . '.jpg';
+        $type = $image_data['type'];
+        $thumb_url = $this->get_gallery_url('images') . $id . ".$type";
+        $image_url = $this->get_gallery_url('images') . $id . ".$type";
         $form = $this->build_form_table($image_data);
 
         $html  = "<div id='image_edit_card'>";
@@ -118,7 +118,7 @@ class image_update_form extends image_view
     {
         $row  = '<p class="submit">';
         $row .= '<input type="submit" class="button button-primary" value="Save Changes" id="gm_image_submit" name="gm_image_update">';
-        $row .= '<input type="submit" class="button button-primary" value="Move to trash" id="gm_image_delete" name="gm_image_update">';
+        $row .= '<input type="submit" class="button button-primary gm_set_float_left" value="Move to trash" id="gm_image_delete" name="gm_image_update">';
         $row .= '</p>';
 
         return $row;
