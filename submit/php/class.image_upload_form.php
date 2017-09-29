@@ -66,21 +66,21 @@ class image_upload_form
         */
 
         $form = "<form id='gm-gallery' method='post' action='$form_action' enctype='multipart/form-data'>
-                    <label for='name'>Your Name <span class='gm-asterisk'>*</span> $error_name </label>
-                    <input name='name' value='$value_name' type='text'>
+                    <label class='gm_full_width' for='name'>Your Name <span class='gm-asterisk'>*</span> $error_name </label>
+                    <input class='gm_full_width' name='name' value='$value_name' type='text'>
         
-                    <label for='email'>Your Email <span class='asterisk'>*</span> $error_email </label>
-                    <input name='email' value='$value_email' type='text'>
+                    <label class='gm_full_width' for='email'>Your Email <span class='asterisk'>*</span> $error_email </label>
+                    <input class='gm_full_width' name='email' value='$value_email' type='text'>
                     
-                    <label for='title'>Title <span class='asterisk'>*</span> $error_title </label>
-                    <input name='title' value='$value_title' type='text'>
+                    <label class='gm_full_width' for='title'>Title <span class='asterisk'>*</span> $error_title </label>
+                    <input class='gm_full_width' name='title' value='$value_title' type='text'>
                     
-                    <label for='image'>Image <span class='asterisk'>* </span> $error_image </label>
-                    <input name='image' value='$value_image' type='file'>
+                    <label class='gm_full_width' for='image'>Image <span class='asterisk'>* </span> $error_image </label>
+                    <input class='gm_full_width' name='image' value='$value_image' type='file'>
         
-                    <label for='message'>Message <span class='asterisk'>* </span> $error_message </label>
-                    <textarea name='message'>$value_message</textarea>
-                    <input value='Send' name='submit' type='submit'>
+                    <label class='gm_full_width' for='message'>Message <span class='asterisk'>* </span> $error_message </label>
+                    <textarea class='gm_full_width' name='message'>$value_message</textarea>
+                    <input class='gm_full_width' value='Send' name='submit' type='submit'>
                 </form>";
 
         session_destroy();
