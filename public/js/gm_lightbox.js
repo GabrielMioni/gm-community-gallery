@@ -15,7 +15,19 @@
             }
 
             var elm = $(this);
-            var thumb = elm.prev('img').attr('src');
+
+            var thumb;
+
+            var true_img_url = elm.parent().find('.gm_hidden_url');
+
+            if (true_img_url.length > 0)
+            {
+                thumb = true_img_url.text();
+            } else {
+                thumb = elm.prev('img').attr('src');
+            }
+
+//            var thumb = elm.prev('img').attr('src');
             var image_url = get_full_image_url(thumb);
 
             /* *********************************************************************************************************
@@ -179,7 +191,8 @@
         var window_h = window.innerHeight;
         var window_w = window.innerWidth;
 
-        var max_h = is_mobile === true ? window_h * .6 : window_h * .7;
+//        var max_h = is_mobile === true ? window_h * .6 : window_h * .7;
+        var max_h = is_mobile === true ? window_h * .8 : window_h * .7;
         var max_w = is_mobile === true ? window_w * .9 : window_w * .4;
 
         // Modify dimensions if the image is too big for the lightbox.
@@ -199,6 +212,10 @@
             rh = Math.round( rh - (rh * perc_w) );
         }
 
+        if (rw < max_w)
+        {
+            rw = max_w;
+        }
 
         var top  = Math.round( (window_h - rh) / 2 );
         var left = Math.round( (window_w - rw) / 2 );
@@ -210,8 +227,11 @@
 
         var canvas = build_canvas_template(set_w, set_h, set_l, set_t, img_url, info_obj);
 
-        $('body').append(canvas);
-        $(document).find('#gm_spinner').remove();
+        var body = $('body');
+
+        body.append(canvas);
+        body.find('#gm_spinner').remove();
+//        $(document).find('#gm_spinner').remove();
         navigate_arrows();
     }
 
@@ -235,7 +255,10 @@
 
         var title_bar = '<div id="gm_title_bar"><div id="gm_title">'+title+' by '+submitter+'</div><div id="gm_info_toggle">info +</div></div>';
 
-        var message_cont = '<div id="gm_message_content"><div id="gm_message_text">'+message+'</div><div id="gm_reply_text">'+reply+'</div></div>';
+        var reply_cont = reply === '<p></p>' ? '' : '<div id="gm_reply_text">'+reply+'</div>';
+
+//        var message_cont = '<div id="gm_message_content"><div id="gm_message_text">'+message+'</div><div id="gm_reply_text">'+reply+'</div></div>';
+        var message_cont = '<div id="gm_message_content"><div id="gm_message_text">'+message+'</div>'+reply_cont+'</div>';
 
         var replace_array = [width, height, img_url];
         var canvas_template = '<div id="gm_canvas" style="width: %s; height: %s;"><img src="%s"><div id="gm_img_close"><div id="gm_close">close [x]</div></div>'+ message_cont + title_bar +'</div></div></div></div>';
@@ -348,7 +371,7 @@
         var body = $('body');
         body.css({'touch-action': 'none'});
 
-        var is_mobile = check_mobile()
+        var is_mobile = check_mobile();
 
         if (is_mobile === true)
         {
@@ -387,7 +410,6 @@
         {
             return false;
         }
-        console.log(keycode);
 
         var canvas_wrapper = $(document).find('#gm_canvas');
         var animate_rules;
@@ -458,11 +480,13 @@
             }
         }
 
-        var target_anchor = target_img.find('a');
+        if (target_img !== null)
+        {
+            var target_anchor = target_img.find('a');
 
-        $.when( $(document).find('#gm_canvas_wrapper').remove() )
-         .then( target_anchor.click() );
-
+            $.when( $(document).find('#gm_canvas_wrapper').remove() )
+                .then( target_anchor.click() );
+        }
     }
 
     /**
