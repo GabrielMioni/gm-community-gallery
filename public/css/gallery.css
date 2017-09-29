@@ -1,70 +1,12 @@
-#gm_pagination
-{
-    max-width: 90%;
-    margin: 0 auto;
-}
-
-#gm_community_gallery {
-    min-width: 90%;
-    text-align: center;
-}
-
 .image_card {
-    background-color: snow;
-    border: 1px solid rgba(0, 0, 0, 0.3);
-    display: inline-block;
     height: 223px;
-    margin: 5px;
-    overflow: hidden;
-    text-align: center;
-    width: 223px;
-}
-
-.image_card .info {
-    display: inline-block;
-    height: 100%;
-    left: 0;
-    position: absolute;
-    top: 0;
-    width: 100%;
 }
 
 .gm_hidden_info {
     display: none;
 }
 
-.image_frame {
-    display: inline-block;
-    height: 100%;
-    position: relative;
-    vertical-align: middle;
-    white-space: nowrap;
-}
-.helper {
-    display: inline-block;
-    height: 100%;
-    vertical-align: middle;
-}
-.image_frame > img {
-    display: inline-block;
-    vertical-align: middle;
-}
-
-.image_frame > a {
-    color: transparent;
-    display: inline-block;
-    height: 100%;
-    left: 0;
-    position: absolute;
-    text-decoration: none;
-    top: 0;
-    width: 100%;
-    -webkit-transition: background-color 250ms;
-    -ms-transition: background-color 250ms;
-    transition: background-color 250ms;
-}
-
-.image_frame .gm_image_hover:hover {
+.image_frame > a:hover {
     background-color: rgba(0, 0, 0, 0.8);
     color: white;
 }
@@ -75,6 +17,7 @@
     padding-left: 15px;
     padding-top: 15px;
     text-align: left;
+    max-width: 85%;
     white-space: pre-wrap;
 }
 
@@ -82,7 +25,13 @@
     display: none;
 }
 
+.image_card .gm_hidden_url {
+    display: none;
+}
 
+/* **********************************
+ * - View specific images without JS
+ * **********************************/
 
 #gm_image_view {
     text-align: center;
@@ -105,12 +54,16 @@ h3#gm_title {
 }
 
 #gm_image, #gm_info {
+/*    border: 1px solid rgba(0, 0, 0, 0.3); */
+/*    display: inline-block; */
     max-width: 700px;
     vertical-align: top;
 }
 
 #gm_info {
     box-sizing: border-box;
+/*    max-width: 400px;
+    min-width: 400px; */
     padding: 15px;
 }
 
@@ -123,6 +76,10 @@ h3#gm_title {
     margin-top: 5px;
     padding-left: 10px;
 }
+
+/* ***********
+ * - Lightbox
+ * **********/
 
 #gm_drop_canvas {
     background-color: rgba(0, 0, 0, 0.8);
@@ -247,6 +204,7 @@ h3#gm_title {
     position: absolute;
     width: 100%;
     text-align: left;
+    height: auto;
 }
 
 #gm_title_bar > div {
@@ -256,7 +214,6 @@ h3#gm_title {
 #gm_title_bar #gm_title {
     padding-left: 5px;
     text-align: left;
-    white-space: normal;
     max-width: 80%;
 }
 
@@ -316,6 +273,10 @@ h3#gm_title {
 }
 
 @media only screen and (max-width: 700px) {
+    #gm_community_gallery {
+        text-align: center;
+    }
+
     #gm_canvas {
         width: auto;
         padding: 0;
