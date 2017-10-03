@@ -230,7 +230,7 @@ class image_upload_process
      * Builds an array of validation error messages that can be displayed to the user submitting the email.
      *
      * @param   array   $error_array    The array containing results from $_POST input checks.
-     * @return  array                   An array with validation messages for the person submitting the email.
+     * @return  array                   Array with validation messages. Empty if no errors are present.
      */
     protected function build_error_msgs(array $error_array)
     {
