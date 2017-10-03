@@ -396,4 +396,9 @@ class image_upload_process
         header('Location: ' . strtok($_SERVER["HTTP_REFERER"],'?'));
         exit();
     }
+
+    public function return_error_msgs()
+    {
+        return $this->error_msgs;
+    }
 }
