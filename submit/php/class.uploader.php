@@ -145,7 +145,7 @@ class uploader
 
         if ( $original_location !== false )
         {
-            $save_location = $this->create_save_location('thumbs', $image_id, 'jpg');
+            $save_location = $this->create_save_location('images', $image_id, 'jpg');
             return $this->resize_and_save($save_location, $original_location, $this->max_image_w, $this->max_image_h);
         }
     }
