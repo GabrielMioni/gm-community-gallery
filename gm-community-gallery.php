@@ -149,12 +149,15 @@ function gm_register_public_css()
 
 
 /* *******************************
- * - Contact Submit Form Shortcode
+ * - Upload Form Shortcode
  * *******************************/
 
 add_shortcode('gm-submit-form', 'gm_gallery_form_shortcode');
 function gm_gallery_form_shortcode()
 {
+    wp_enqueue_script('gm_submit');
+    wp_enqueue_style('gm-font-awesome');
+
     require_once('submit/php/class.image_upload_form.php');
 
     // Add the gm-contact.css file
@@ -209,6 +212,28 @@ function gm_register_public_js()
     wp_localize_script('gm-public-js', 'gm_js', array( 'is_mobile' => $is_mobile, 'loading_gif' => $gif_url ) );
 }
 
+/* **************************
+ * - Register JS Upload Form
+ * *************************/
+
+// Enqueue the script, in the footer
+add_action( 'wp_enqueue_scripts', 'gm_js_upload_form');
+function gm_js_upload_form() {
+
+    // Enqueue the script
+//    wp_register_script( 'gm_js_form',  plugins_url( 'submit/js/form.js', __FILE__ ), array('jquery'), GM_GALLERY_VERSION, true );
+    wp_register_script( 'gm_submit',  plugins_url( 'submit/js/submit.js', __FILE__ ), array('jquery'), GM_GALLERY_VERSION, true );
+
+    // Get current page protocol.
+    $protocol = isset( $_SERVER["HTTPS"]) ? 'https://' : 'http://';
+
+    // create nonce_field
+    $gm_nonce = wp_nonce_field('gm_js_submit');
+
+    // Localize ajaxurl with protocol
+    $params = array( 'ajaxurl' => admin_url( 'admin-ajax.php', $protocol), 'gm_nonce_field' => $gm_nonce );
+    wp_localize_script( 'gm_submit', 'gm_submit', $params );
+}
 
 
 /* *******************************
@@ -431,6 +456,50 @@ function gm_community_admin_trash()
     }
 }
 
+
+/* *******************************
+ * - Ajax Handler
+ * *******************************/
+
+add_action('wp_ajax_nopriv_gm_ajax_submit', 'gm_ajax_submit');
+add_action('wp_ajax_gm_ajax_submit', 'gm_ajax_submit');
+
+function gm_ajax_submit() {
+
+    $data = $_REQUEST;
+
+    $inputs = $data['inputs'];
+
+    parse_str($inputs, $input_values);
+
+    echo '<pre>';
+    print_r($_FILES);
+    print_r($input_values);
+    echo '</pre>';
+
+    foreach ($input_values as $key=>$value)
+    {
+        $_POST[$key] = $value;
+    }
+
+    // Just cleanup
+    if ( isset($_POST['action']) )
+    {
+        unset($_POST['action']);
+    }
+    if ( isset($_POST['inputs']) )
+    {
+        unset($_POST['inputs']);
+    }
+
+    $_POST['is_ajax'] = true;
+
+    require_once('submit/php/class.image_upload_process.php');
+
+    new GM_community_gallery\submit\image_upload_process();
+
+    die();
+}
 
 
 /* *******************************
