@@ -65,7 +65,8 @@ class image_upload_form
         echo '</pre>';
         */
 
-        $form = "<form id='gm-gallery' method='post' action='$form_action' enctype='multipart/form-data'>
+        $form  = '<div id="gm_gallery_submit">';
+        $form .= "<form id='gm-gallery' method='post' action='$form_action' enctype='multipart/form-data'>
                     <label class='gm_full_width' for='name'>Your Name <span class='gm-asterisk'>*</span> $error_name </label>
                     <input class='gm_full_width' name='name' value='$value_name' type='text'>
         
@@ -82,6 +83,7 @@ class image_upload_form
                     <textarea class='gm_full_width' name='message'>$value_message</textarea>
                     <input class='gm_full_width' value='Send' name='submit' type='submit'>
                 </form>";
+        $form .= '</div>';
 
         session_destroy();
 
