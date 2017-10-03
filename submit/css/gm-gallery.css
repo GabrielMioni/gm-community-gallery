@@ -19,7 +19,7 @@ form#gm-gallery {
 #gm-gallery textarea
 {
     display: block;
-/*    min-width: 100%; */
+    min-width: 100%;
     border-radius: 0;
     height: 27px;
 }
@@ -62,3 +62,117 @@ form#gm-gallery {
     position: relative;
     display: inline-block;
 }
+
+/**
+    - JS Uploaded
+ */
+#gm_gallery_submit {
+    max-width: 810px;
+}
+
+form#gm-gallery.gm_js_form {
+    display: inline-block;
+    font-family: "Oswald",sans-serif;
+    margin: 0 auto;
+    width: 100%;
+}
+
+#gm_input_wrapper {
+    max-width: 99.5%;
+}
+
+#gm_text_input_wrapper {
+    margin-right: 1%;
+}
+
+#gm_text_input_wrapper, #gm_preview_wrapper {
+    display: inline-block;
+    position: relative;
+    vertical-align: top;
+    width: 400px;
+}
+
+#gm_preview_wrapper {
+    border: 1px solid #ccc;
+    height: 305px;
+    text-align: center;
+    width: 398px;
+}
+
+button {
+    min-width: 100%;
+}
+
+#gm_preview_wrapper > img {
+    box-sizing: border-box;
+    display: inline-block;
+    height: 100%;
+    object-fit: contain;
+    padding: 5px;
+    width: 100%;
+    z-index: 300;
+}
+
+#gm_preview_wrapper #gm_preview_pane {
+    background: #ddd none repeat scroll 0 0;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+#gm_preview_pane i {
+    display: block;
+    position: absolute;
+    text-align: center;
+    top: 35%;
+    width: 100%;
+}
+
+#gm-gallery.gm_js_form #gm_text_input_wrapper textarea {
+    min-height: 185px;
+}
+
+/*
+#gm_preview_wrapper, #gm_message_wrapper {
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    display: inline-block;
+    height: 400px;
+    min-width: 30%;
+    padding: 10px 5px 20px;
+    position: relative;
+    text-align: center;
+    vertical-align: top;
+    width: auto;
+}
+#gm_preview_wrapper img {
+    background: #d2d7d3 none repeat scroll 0 0;
+    height: 280px;
+    position: relative;
+    top: 15px;
+    width: 400px;
+}
+#gm_js_title, #gm_js_submitter {
+    background-color: white;
+    color: black;
+}
+#gm_js_title, #gm_js_submitter {
+    height: 40px;
+    margin: 0 auto 10px;
+    position: relative;
+    top: 20px;
+    width: 400px;
+}
+#gm_js_title {
+    height: 40px;
+    left: 0;
+    margin: 0 auto;
+    position: relative;
+    top: 10px;
+}
+#gm-gallery #gm_message_wrapper textarea {
+    max-height: 400px;
+    width: 400px;
+}
+*/
