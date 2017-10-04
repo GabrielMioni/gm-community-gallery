@@ -223,6 +223,9 @@ function gm_js_upload_form() {
     // Enqueue the script
 //    wp_register_script( 'gm_js_form',  plugins_url( 'submit/js/form.js', __FILE__ ), array('jquery'), GM_GALLERY_VERSION, true );
     wp_register_script( 'gm_submit',  plugins_url( 'submit/js/submit.js', __FILE__ ), array('jquery'), GM_GALLERY_VERSION, true );
+    wp_enqueue_script('jquery-effects-shake');
+
+    $gif_url = plugins_url('public/images/', __FILE__) . 'wpspin-2x.gif';
 
     // Get current page protocol.
     $protocol = isset( $_SERVER["HTTPS"]) ? 'https://' : 'http://';
@@ -231,7 +234,7 @@ function gm_js_upload_form() {
     $gm_nonce = wp_nonce_field('gm_js_submit');
 
     // Localize ajaxurl with protocol
-    $params = array( 'ajaxurl' => admin_url( 'admin-ajax.php', $protocol), 'gm_nonce_field' => $gm_nonce );
+    $params = array( 'ajaxurl' => admin_url( 'admin-ajax.php', $protocol), 'gm_nonce_field' => $gm_nonce, 'loading_gif' => $gif_url);
     wp_localize_script( 'gm_submit', 'gm_submit', $params );
 }
 
@@ -472,11 +475,6 @@ function gm_ajax_submit() {
 
     parse_str($inputs, $input_values);
 
-    echo '<pre>';
-    print_r($_FILES);
-    print_r($input_values);
-    echo '</pre>';
-
     foreach ($input_values as $key=>$value)
     {
         $_POST[$key] = $value;
@@ -496,7 +494,11 @@ function gm_ajax_submit() {
 
     require_once('submit/php/class.image_upload_process.php');
 
-    new GM_community_gallery\submit\image_upload_process();
+    $upload = new GM_community_gallery\submit\image_upload_process();
+
+    $response = $upload->return_response();
+
+    echo json_encode($response);
 
     die();
 }

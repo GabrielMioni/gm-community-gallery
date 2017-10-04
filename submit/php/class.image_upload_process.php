@@ -397,8 +397,21 @@ class image_upload_process
         exit();
     }
 
-    public function return_error_msgs()
+    public function return_response()
     {
-        return $this->error_msgs;
+        $error_msgs = $this->error_msgs;
+
+        $result_array = array();
+
+        if ( empty($error_msgs) )
+        {
+            $result_array['result'] = 'success';
+
+        } else {
+            $result_array['result'] = 'failed';
+            $result_array['messages'] = $error_msgs;
+        }
+
+        return $result_array;
     }
 }
