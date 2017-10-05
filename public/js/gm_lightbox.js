@@ -323,8 +323,6 @@
         });
     }
 
-
-
     /**
      * Destroys the canvas/backdrop/arrows when the back drop is clicked.
      */
@@ -540,10 +538,6 @@
             var target_anchor = target_img.find('a');
 
             target_anchor.click();
-/*
-            $.when( $(document).find('#gm_canvas_wrapper').remove() )
-                .then( target_anchor.click() );
-*/
         }
     }
 
