@@ -9,9 +9,10 @@
         $('.image_frame').find('a').on('click', function (e) {
             e.preventDefault();
 
-            if ( $(document).find('#gm_canvas_wrapper').length > 0 )
+            // While the lightbox is loading images, do not allow further navigation.
+            if ( $(this).hasClass('loading') )
             {
-                $(document).find('#gm_canvas_wrapper').remove();
+                return false;
             }
 
             var elm = $(this);
@@ -27,7 +28,6 @@
                 thumb = elm.prev('img').attr('src');
             }
 
-//            var thumb = elm.prev('img').attr('src');
             var image_url = get_full_image_url(thumb);
 
             /* *********************************************************************************************************
@@ -43,31 +43,11 @@
 
             load_new_image(image_url, function() {
 
-                // Will not display on a good connection. Added/removed too quickly.
-                show_loading_gif();
-
                 create_canvas(rw, rh, image_url, info_obj);
             });
 
             $('body').bind('touchmove', function(e){e.preventDefault()})
         })
-    }
-
-    /**
-     * Append the spinner gif. This used the gm_js variable which is set in gm-community-gallery.php by the
-     * gm_register_public_js() function.
-     */
-    function show_loading_gif()
-    {
-        if ( $(document).find('#gm_canvas').find('img').length < 1 )
-        {
-            var loading_gif_url = gm_js.loading_gif + 'wpspin-2x.gif';
-
-            var spinner_elm = '<div id="gm_spinner"><div id="gm_spin_wrapper"><img src="'+loading_gif_url+'"></div></div>';
-
-            $('body').append(spinner_elm);
-
-        }
     }
 
     /**
@@ -176,8 +156,7 @@
     }
 
     /**
-     * Create the canvas with embedded image. Acts as the callback for the load_new_image() function. Remove the loading
-     * gif it's present.
+     * Either creates and appends a new canvas if one doesn't exist or causes the existing
      *
      * @param   {int}       rw      Loaded image height.
      * @param   {int}       rh      Loaded iage width.
@@ -191,7 +170,6 @@
         var window_h = window.innerHeight;
         var window_w = window.innerWidth;
 
-//        var max_h = is_mobile === true ? window_h * .6 : window_h * .7;
         var max_h = is_mobile === true ? window_h * .8 : window_h * .7;
         var max_w = is_mobile === true ? window_w * .9 : window_w * .4;
 
@@ -218,21 +196,24 @@
         }
 
         var top  = Math.round( (window_h - rh) / 2 );
-        var left = Math.round( (window_w - rw) / 2 );
 
         var set_w = rw.toString() + 'px';
         var set_h = rh.toString() + 'px';
-        var set_l = left.toString() + 'px';
         var set_t = top.toString() + 'px';
 
-        var canvas = build_canvas_template(set_w, set_h, set_l, set_t, img_url, info_obj);
+        if ( $(document).find('#gm_canvas').length < 1 || is_mobile === true )
+        {
+            var canvas = build_canvas_template(set_w, set_h, set_t, img_url, info_obj);
 
-        var body = $('body');
+            var body = $('body');
 
-        body.append(canvas);
-        body.find('#gm_spinner').remove();
-//        $(document).find('#gm_spinner').remove();
-        navigate_arrows();
+            body.append(canvas);
+
+            navigate_arrows();
+        } else {
+
+            animate_canvas(rw, rh, top, img_url, info_obj);
+        }
     }
 
     /**
@@ -240,13 +221,12 @@
      *
      * @param   {string} width
      * @param   {string} height
-     * @param   {string} left
      * @param   {string} top
      * @param   {string} img_url     URL for the image being loaded and embedded in the #gm_canvas element.
      * @param   {object} info_obj
      * @returns {string}             HTML for the canvas with embedded image.
      */
-    function build_canvas_template(width, height, left, top, img_url, info_obj)
+    function build_canvas_template(width, height, top, img_url, info_obj)
     {
         var title     = info_obj.title;
         var submitter = info_obj.submitter;
@@ -257,7 +237,6 @@
 
         var reply_cont = reply === '<p></p>' ? '' : '<div id="gm_reply_text">'+reply+'</div>';
 
-//        var message_cont = '<div id="gm_message_content"><div id="gm_message_text">'+message+'</div><div id="gm_reply_text">'+reply+'</div></div>';
         var message_cont = '<div id="gm_message_content"><div id="gm_message_text">'+message+'</div>'+reply_cont+'</div>';
 
         var replace_array = [width, height, img_url];
@@ -271,6 +250,80 @@
 
         return '<div id="gm_canvas_wrapper" class="gm_swipe_area" style="top: '+top+'">' + canvas_template + '</div>';
     }
+
+    /**
+     * Used when the canvas is already on the screen. Empties the canvas, re-sizes canvas for new image, displays
+     * a loading spinner and populates with new content.
+     *
+     * @param   {string} width
+     * @param   {string} height
+     * @param   {string} top
+     * @param   {string} img_url     URL for the image being loaded and embedded in the #gm_canvas element.
+     * @param   {object} info_obj
+     */
+    function animate_canvas(width, height, top, img_url, info_obj) {
+
+        var canvas = $(document).find('#gm_canvas');
+        var wrapper = $(document).find('#gm_canvas_wrapper');
+        var img_link = $(document).find('.gm_image_hover');
+        var animate_speed = 200;
+
+        var loading_spinner = '<i class="fa fa-circle-o-notch fa fast-spin fa-fw fa-3x"></i><span class="sr-only">Loading...</span>';
+
+        canvas.empty();
+
+        // The 'loading' class prevents the image link from being navigated to while it's present.
+        $.each(img_link, function () {
+            $(this).addClass('loading');
+        });
+
+        canvas.animate({
+                'width': width,
+                'height': height
+            }, animate_speed, function () {
+            if ( canvas.find('.fa').length < 1 )
+            {
+                canvas.append(loading_spinner);
+            }
+        });
+
+        wrapper.animate({
+            'top' : top
+        }, animate_speed, function() {
+
+            var title     = info_obj.title;
+            var submitter = info_obj.submitter;
+            var message   = info_obj.message;
+            var reply     = info_obj.reply;
+
+            var title_bar = '<div style="display:none" id="gm_title_bar"><div id="gm_title">'+title+' by '+submitter+'</div><div id="gm_info_toggle">info +</div></div>';
+            var close_bar = '<div style="display:none" id="gm_img_close"><div id="gm_close">close [x]</div></div>';
+
+            var reply_cont = reply === '<p></p>' ? '' : '<div id="gm_reply_text">'+reply+'</div>';
+
+            var message_cont = '<div id="gm_message_content"><div id="gm_message_text">'+message+'</div>'+reply_cont+'</div>';
+
+            var img = '<img style="display:none" src="'+img_url+'">';
+
+            setTimeout( function () {
+                canvas.append(title_bar + close_bar + message_cont);
+                canvas.append(img);
+                canvas.find('.fa').remove();
+                canvas.find('img').fadeIn();
+                canvas.find('#gm_title_bar').fadeIn();
+                canvas.find('#gm_img_close').fadeIn();
+
+                $.each(img_link, function () {
+                    // Allow lightbox navigation to continue
+                    $(this).removeClass('loading');
+                });
+
+            }, 1000 );
+
+        });
+    }
+
+
 
     /**
      * Destroys the canvas/backdrop/arrows when the back drop is clicked.
@@ -287,12 +340,13 @@
      * @return {void}
      */
     function image_close() {
-//        var canvas    = $(document).find('#gm_canvas');
-        var canvas    = $(document).find('#gm_canvas_wrapper');
+        var canvas    = $(document).find('#gm_canvas');
+        var wrapper   = $(document).find('#gm_canvas_wrapper');
         var back_drop = $(document).find('#gm_drop_canvas');
         var img_nav   = $(document).find('#gm_img_nav');
         var spinner   = $(document).find('#gm_spinner');
 
+        wrapper.remove();
         canvas.remove();
         back_drop.remove();
         img_nav.remove();
@@ -432,6 +486,7 @@
         {
             canvas_wrapper.animate( animate_rules, function () {
                 navigate(keycode);
+                $(document).find('#gm_canvas').remove();
             });
         }
     }
@@ -484,8 +539,11 @@
         {
             var target_anchor = target_img.find('a');
 
+            target_anchor.click();
+/*
             $.when( $(document).find('#gm_canvas_wrapper').remove() )
                 .then( target_anchor.click() );
+*/
         }
     }
 
