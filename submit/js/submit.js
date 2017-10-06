@@ -312,7 +312,7 @@
             var elm   = $(this);
             var name  = elm.attr('name');
 
-            // For email, add/remove .gm-error class on blue.
+            // For email, add/remove .gm-error class on blur .
             if (name === 'email') {
                 elm.on('blur', function () {
                     check_input( elm, validate_email);
