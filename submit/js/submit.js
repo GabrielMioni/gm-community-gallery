@@ -1,5 +1,8 @@
 (function($) {
 
+    /**
+     * Empties the HTML image submit form and replaces it with a cool JS form.
+     */
     function display_uploader() {
 
         var form_wrapper = $(document).find('#gm_gallery_submit');
@@ -60,7 +63,7 @@
 
                 reader.readAsDataURL(this.files[0]);
             }
-        })
+        }); // end change
     }
 
     /**
@@ -75,8 +78,7 @@
             var input = $(document).find('#gm_file_input');
 
             input.click();
-        });
-
+        }); // end click
     }
 
     /**
@@ -91,20 +93,21 @@
             e.preventDefault();
 
             // Prevent multiple submissions
-            if ( gm_button.hasClass('clicked') )
+            if ( gm_button.hasClass('gm_clicked') )
             {
                 return false;
             }
 
             // Prevent multiple submits
-            gm_button.addClass('clicked');
+            gm_button.addClass('gm_clicked');
 
             var file = ($(document).find('#gm_file_input'))[0].files[0];
 
             var inputs = form.serialize();
 
-            if (check_form_inputs(inputs, file) === false)
+            if ( add_input_errors() === false )
             {
+                // Allow submits again. Do not submit to Ajax
                 return false;
             }
 
@@ -137,8 +140,7 @@
                     // Todo: Populate generic error
                     console.log(resp);
                 }
-            } );
-
+            }); // end ajax
         });
     }
 
@@ -150,7 +152,7 @@
      */
     function process_ajax_response(resp) {
 
-        setTimeout(function () {
+        setTimeout( function () {
 
             var json_resp = JSON.parse(resp);
             var result = json_resp.result;
@@ -166,7 +168,7 @@
                 default:
                     break;
             }
-        }, 1800);
+        }, 1800); // end timeout
 
     }
 
@@ -185,119 +187,10 @@
         });
 
         form_wrapper.delay(500).append(success_msg);
-
     }
 
     /**
-     * Validates the file input, text inputs and textarea.
-     *
-     * @param   inputs      {string}    Serialized data from the form.
-     * @param   file        {string}    Filename content from the form.
-     * @returns {boolean}   Returns true if no errors are present. Else returns false.
-     */
-    function check_form_inputs(inputs, file) {
-
-        var form_wrapper = $(document).find('#gm_gallery_submit');
-        var form         = form_wrapper.find('form');
-        var button       = form_wrapper.find('#gm_submit_button');
-
-        var image_type = false;
-        var image_name = false;
-
-        inputs = typeof file === 'undefined' ? 'image=&' + inputs : inputs;
-
-        console.log(file);
-
-        if ( typeof file === 'undefined' ) {
-            inputs = 'image=&' + inputs;
-        } else {
-            image_type = file.type;
-            image_name = file.name;
-
-            inputs = 'image=' + image_name + '&' + inputs;
-            console.log(inputs);
-        }
-
-        console.log(inputs);
-
-        var input_obj = Object();
-
-        var split_inputs = inputs.split('&');
-
-        var no_errors = true;
-
-        $.each(split_inputs, function (index, value) {
-            var inner = value.split('=');
-
-            if ( inner[0] !== '_wpnonce' && inner[0] !== '_wp_http_referer')
-            {
-                input_obj[inner[0]] = inner[1].trim();
-            }
-        });
-
-        $.each(input_obj, function (index, value) {
-
-            var input;
-
-            switch (index) {
-                case 'email':
-                    if ( ! validate_email(value) ) {
-                        no_errors = false;
-                        input = form.find("input[name='email']");
-                        input.addClass('gm-error');
-                    }
-                    break;
-                case 'image':
-                    if ( ! check_extension(value) ) {
-                        no_errors = false;
-                        input = form.find("input[name='image']");
-                        input.addClass('gm-error');
-                    }
-                    break;
-                default:
-                    if ( value === '' ) {
-                        no_errors = false;
-                        input = form.find("input[name='"+index+"'], textarea[name='"+index+"']");
-                        input.addClass('gm-error');
-                    }
-                    break;
-            }
-        });
-
-        if ( no_errors === false )
-        {
-            // Allow submits again.
-            button.removeClass('clicked');
-
-            var error_wrapper = form_wrapper.find('#gm_js_error_wrapper');
-
-            if ( $(document).find('#gm_error_response').length < 1 )
-            {
-                error_wrapper.append('<div id="gm_error_response">Please complete the fields in red.</div>');
-            } else {
-                error_wrapper.effect('shake');
-            }
-        }
-
-        return no_errors;
-    }
-
-    function check_extension(file_name) {
-        var allowed_exts = ['.jpg', '.jpeg', '.png', '.gif'];
-
-        var reg_ex = (new RegExp('(' + allowed_exts.join('|').replace(/\./g, '\\.') + ')$')).test(file_name);
-
-        if ( reg_ex === true )
-        {
-            return file_name.split('.').pop();
-        }
-
-        return false;
-    }
-
-    /**
-     * Populates validation errors in the form based on Ajax response. Probably unnecessary since JS form
-     * validation won't let invalid data pass to the Ajax submit.
+     * Populates validation errors in the form based on Ajax response.
      *
      * @param msgs {JSON} Messages from the Ajax response.
      */
@@ -342,12 +235,13 @@
     }
 
     /**
-     * Populates an array 'bad_elms' with HTML elements
+     * If 'error_msg' is not whitespace, find the appropriate form input for the message and push it to the 'bad_elms'
+     * array.
      *
-     * @param form      {HTML}      Submit form element.
-     * @param input_id  {string}    ID for the input being examined.
-     * @param bad_elms  {Array}     Array that is populated with input elements.
-     * @param error_msg {string}    The validation message for the input.
+     * @param form      {HTMLElement}   Submit form element.
+     * @param input_id  {string}        ID for the input being examined.
+     * @param bad_elms  {Array}         Array that is populated with input elements.
+     * @param error_msg {string}        The validation message for the input.
      */
     function push_bad_elms(form, input_id, bad_elms, error_msg)
     {
@@ -359,59 +253,164 @@
     }
 
     /**
-     * Checks inputs with the 'gm-error' class and clears them if they pass validation. For most inputs,
-     * having content is enough. The value for the email input is checked to make sure the content fits email
-     * formatting. Empties the #gm_js_error_wrapper element if no errors are present.
+     * Validates the file input, text inputs and textarea. Adds the 'gm-error' class to inputs that fail validation.
+     * Also displays general error in a #gm_error_response element. Shakes the #gm_error_response if it's already present.
+     *
+     * @returns {boolean}   If any errors are found, return false.
+     */
+    function add_input_errors() {
+        var form_wrapper = $(document).find('#gm_gallery_submit');
+        var form = form_wrapper.find('form');
+        var inputs = form_wrapper.find('input, textarea');
+        var gm_button = form.find('#gm_submit_button');
+
+        inputs.each( function () {
+            var name  = $(this).attr('name');
+
+            var elm = $(this);
+
+            switch (name) {
+                case 'email':
+                    check_input(elm, validate_email);
+                    break;
+                case 'image':
+                    check_input(elm, validate_extension);
+                    break;
+                default:
+                    check_input(elm, true);
+                    break;
+            }
+
+        }); // end each
+
+        gm_button.removeClass('gm_clicked');
+
+        if ( form.find('.gm-error').length > 0 )
+        {
+            var error_wrapper = form_wrapper.find('#gm_js_error_wrapper');
+
+            if ( $(document).find('#gm_error_response').length < 1 )
+            {
+                error_wrapper.append('<div id="gm_error_response">Please complete the fields in red.</div>');
+            } else {
+                error_wrapper.effect('shake');
+            }
+
+            return false;
+        }
+    }
+
+    /**
+     * Validates input values while the form user is inputting data. Empties the #gm_js_error_wrapper element if no
+     * errors are present.
      */
     function remove_input_errors() {
         var form_wrapper = $(document).find('#gm_gallery_submit');
         var inputs = form_wrapper.find('input, textarea');
 
         inputs.each( function () {
-            var name = $(this).attr('name');
+            var elm   = $(this);
+            var name  = elm.attr('name');
 
-            if (name !== 'email')
-            {
-                $(this).on('input', function () {
-
-                    if ( $(this).hasClass('gm-error') )
-                    {
-                        $(this).removeClass('gm-error');
-                    }
-
-                }); // end on change.
-            }
-
-            if (name === 'email')
-            {
-                $(this).on('input', function () {
-
-                    var email_value = $(this).val();
-
-                    if ( validate_email(email_value) && $(this).hasClass('gm-error') )
-                    {
-                        $(this).removeClass('gm-error');
-                    }
-
-                }); // end on change.
+            // For email, add/remove .gm-error class on blue.
+            if (name === 'email') {
+                elm.on('blur', function () {
+                    check_input( elm, validate_email);
+                });
             }
 
             $(this).on('input', function () {
+                switch (name) {
+                    case 'email':
+                        // Don't validate unless it's to remove the .gm-error class.
+                        if ( $(this).hasClass('gm-error') ) {
+                            check_input(elm, validate_email);
+                        }
+                        break;
+                    case 'image':
+                        check_input(elm, validate_extension);
+                        break;
+                    default:
+                        check_input(elm, true);
+                        break;
+                }
 
-                var inputs_with_errors = form_wrapper.find('.gm-error');
-
-                if ( inputs_with_errors.length < 1 )
-                {
+                if ( form_wrapper.find('.gm-error').length < 1 ) {
                     form_wrapper.find('#gm_js_error_wrapper').empty();
                 }
-            });
+
+            }); // end on input
+
         }); // end each
     }
 
+    /**
+     * Validates the value from argument elm. If the 'callback' argument is a function, that function will be used
+     * to validate the input value. Else, just check to see if the input value is not whitespace.
+     *
+     * @param   elm         {HTMLElement}   Text/file input or textarea being checked.
+     * @param   callback    {function|*}    Function used to validate in input value. Or any value.
+     * @returns {boolean}                   Returns true if input value passes validation, else false.
+     */
+    function check_input(elm, callback) {
+
+        var value = elm.val();
+        var has_error = elm.hasClass('gm-error');
+
+        if ( typeof callback === 'function' ) {
+
+            if ( callback(value) && has_error) {
+                elm.removeClass('gm-error');
+                return true;
+            }
+
+            if ( !callback(value) && !has_error ) {
+                elm.addClass('gm-error');
+                return false;
+            }
+        } else {
+
+            if ( value !== '' && has_error) {
+                elm.removeClass('gm-error');
+                return true;
+            }
+
+            if ( value === '' && !has_error) {
+                elm.addClass('gm-error');
+                return false;
+            }
+        }
+    }
+
+    /**
+     * Checks to make sure the 'email_string' argument is a valid email address.
+     *
+     * @param   email_string     {string}   Value being checked.
+     * @returns {boolean}                   Returns true if valid, else false.
+     */
     function validate_email(email_string) {
         email_string = decodeURIComponent(email_string);
         var pattern = /^([a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+(\.[a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)*|"((([ \t]*\r\n)?[ \t]+)?([\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*(([ \t]*\r\n)?[ \t]+)?")@(([a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.)+([a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.?$/i;
         return pattern.test(email_string);
+    }
+
+    /**
+     * Checks to make sure the 'file_name' argument includes an allowed file extension.
+     *
+     * @param   file_name   {string}    Value being checked.
+     * @returns {string|boolean}        If extension is valid, return extension. Else return false.
+     */
+    function validate_extension(file_name) {
+        var allowed_exts = ['.jpg', '.jpeg', '.png', '.gif'];
+
+        var reg_ex = (new RegExp('(' + allowed_exts.join('|').replace(/\./g, '\\.') + ')$')).test(file_name);
+
+        if ( reg_ex === true )
+        {
+            return file_name.split('.').pop();
+        }
+
+        return false;
     }
 
     /* *********************
@@ -423,6 +422,5 @@
     img_click();
     img_submit();
     remove_input_errors();
-
 
 })(jQuery);
