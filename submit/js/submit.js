@@ -201,7 +201,24 @@
         var form         = form_wrapper.find('form');
         var button       = form_wrapper.find('#gm_submit_button');
 
+        var image_type = false;
+        var image_name = false;
+
         inputs = typeof file === 'undefined' ? 'image=&' + inputs : inputs;
+
+        console.log(file);
+
+        if ( typeof file === 'undefined' ) {
+            inputs = 'image=&' + inputs;
+        } else {
+            image_type = file.type;
+            image_name = file.name;
+
+            inputs = 'image=' + image_name + '&' + inputs;
+            console.log(inputs);
+        }
+
+        console.log(inputs);
 
         var input_obj = Object();
 
@@ -222,19 +239,29 @@
 
             var input;
 
-            if ( value === '' && index !== 'email' )
-            {
-                no_errors = false;
-                input = form.find("input[name='"+index+"'], textarea[name='"+index+"']");
-                input.addClass('gm-error');
+            switch (index) {
+                case 'email':
+                    if ( ! validate_email(value) ) {
+                        no_errors = false;
+                        input = form.find("input[name='email']");
+                        input.addClass('gm-error');
+                    }
+                    break;
+                case 'image':
+                    if ( ! check_extension(value) ) {
+                        no_errors = false;
+                        input = form.find("input[name='image']");
+                        input.addClass('gm-error');
+                    }
+                    break;
+                default:
+                    if ( value === '' ) {
+                        no_errors = false;
+                        input = form.find("input[name='"+index+"'], textarea[name='"+index+"']");
+                        input.addClass('gm-error');
+                    }
+                    break;
             }
-            else if ( index === 'email' && validate_email(value) === false )
-            {
-                no_errors = false;
-                input = form.find("input[name='email']");
-                input.addClass('gm-error');
-            }
-
         });
 
         if ( no_errors === false )
@@ -253,6 +280,19 @@
         }
 
         return no_errors;
+    }
+
+    function check_extension(file_name) {
+        var allowed_exts = ['.jpg', '.jpeg', '.png', '.gif'];
+
+        var reg_ex = (new RegExp('(' + allowed_exts.join('|').replace(/\./g, '\\.') + ')$')).test(file_name);
+
+        if ( reg_ex === true )
+        {
+            return file_name.split('.').pop();
+        }
+
+        return false;
     }
 
     /**
