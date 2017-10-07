@@ -35,9 +35,9 @@
      */
     function preview_img() {
 
-        var input = $(document).find('#gm_file_input');
+        var file_input = $(document).find('#gm_file_input');
 
-        input.on('change', function () {
+        file_input.on('change', function () {
 
             if (this.files && this.files[0])
             {
@@ -135,11 +135,8 @@
                 {
                     process_ajax_response(resp);
                 },
-                error: function(resp)
-                {
-                    // Todo: Populate generic error
-                    console.log(resp);
-                }
+                error: display_error_message('There was a problem submitting your image. Please try again later.')
+
             }); // end ajax
         });
     }
@@ -169,7 +166,20 @@
                     break;
             }
         }, 1800); // end timeout
+    }
 
+    function display_error_message(error_msg) {
+
+        var form_wrapper = $(document).find('#gm_gallery_submit');
+        var error_wrapper = form_wrapper.find('#gm_js_error_wrapper');
+
+        if ( $(document).find('#gm_error_response').length < 1 )
+        {
+            var insert = '<div id="gm_error_response">' + error_msg + '</div>';
+            error_wrapper.append(insert);
+        } else {
+            error_wrapper.effect('shake');
+        }
     }
 
     /**
@@ -205,17 +215,11 @@
         var form_wrapper  = $(document).find('#gm_gallery_submit');
         var form          = form_wrapper.find('form');
         var button        = form.find('#gm_submit_button');
-        var error_wrapper = form_wrapper.find('#gm_js_error_wrapper');
 
         button.removeClass('clicked');
         button.find('#gm_js_loading_gif').empty();
 
-        if ( $(document).find('#gm_error_response').length < 1 )
-        {
-            error_wrapper.append('<div id="gm_error_response">Please complete the fields in red.</div>');
-        } else {
-            error_wrapper.effect('shake');
-        }
+        display_error_message('Please complete the fields in red');
 
         var bad_elms = [];
 
@@ -287,14 +291,7 @@
 
         if ( form.find('.gm-error').length > 0 )
         {
-            var error_wrapper = form_wrapper.find('#gm_js_error_wrapper');
-
-            if ( $(document).find('#gm_error_response').length < 1 )
-            {
-                error_wrapper.append('<div id="gm_error_response">Please complete the fields in red.</div>');
-            } else {
-                error_wrapper.effect('shake');
-            }
+            display_error_message('Please complete the fields in red.');
 
             return false;
         }
