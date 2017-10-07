@@ -171,7 +171,7 @@
     /**
      * Displays an error message. Shakes the error message if it's already present.
      *
-     * @param error_msg
+     * @param error_msg {string}    The message that will appear in the #gm_error_response element.
      */
     function display_error_message(error_msg) {
 
