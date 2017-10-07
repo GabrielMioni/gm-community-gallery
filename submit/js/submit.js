@@ -101,10 +101,6 @@
             // Prevent multiple submits
             gm_button.addClass('gm_clicked');
 
-            var file = ($(document).find('#gm_file_input'))[0].files[0];
-
-            var inputs = form.serialize();
-
             if ( add_input_errors() === false )
             {
                 // Allow submits again. Do not submit to Ajax
@@ -120,7 +116,10 @@
                 gif_elm.append(loading_spinner);
             }
 
+            var file    = ($(document).find('#gm_file_input'))[0].files[0];
+            var inputs  = form.serialize();
             var formdata = new FormData();
+
             formdata.append('inputs', inputs);
             formdata.append('image', file);
             formdata.append('action', 'gm_ajax_submit');
@@ -135,7 +134,9 @@
                 {
                     process_ajax_response(resp);
                 },
-                error: display_error_message('There was a problem submitting your image. Please try again later.')
+                error: function () {
+                    display_error_message('There was a problem submitting your image. Please try again later!')
+                }
 
             }); // end ajax
         });
@@ -175,7 +176,7 @@
      */
     function display_error_message(error_msg) {
 
-        var form_wrapper = $(document).find('#gm_gallery_submit');
+        var form_wrapper  = $(document).find('#gm_gallery_submit');
         var error_wrapper = form_wrapper.find('#gm_js_error_wrapper');
         var error_display = form_wrapper.find('#gm_error_response');
 
@@ -197,7 +198,7 @@
      */
     function display_success_msg() {
 
-        var success_msg = '<div id="gm_success">Thank you! Your image has been uploaded</div>';
+        var success_msg  = '<div id="gm_success">Thank you! Your image has been uploaded</div>';
 
         var form_wrapper = $(document).find('#gm_gallery_submit');
         var form         = form_wrapper.find('form');
@@ -206,7 +207,7 @@
             $(this).remove();
         });
 
-        form_wrapper.delay(500).append(success_msg);
+        form_wrapper.delay(600).append(success_msg);
     }
 
     /**
