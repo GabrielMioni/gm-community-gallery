@@ -213,7 +213,7 @@
     /**
      * Populates validation errors in the form based on Ajax response.
      *
-     * @param msgs {JSON} Messages from the Ajax response.
+     * @param msgs {Object} Messages from the Ajax response.
      */
     function display_error_msg(msgs) {
 
