@@ -411,6 +411,8 @@
     function validate_extension(file_name) {
         var allowed_exts = ['.jpg', '.jpeg', '.png', '.gif'];
 
+        file_name = file_name.toLowerCase();
+
         var reg_ex = (new RegExp('(' + allowed_exts.join('|').replace(/\./g, '\\.') + ')$')).test(file_name);
 
         if ( reg_ex === true )
