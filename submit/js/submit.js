@@ -168,16 +168,26 @@
         }, 1800); // end timeout
     }
 
+    /**
+     * Displays an error message. Shakes the error message if it's already present.
+     *
+     * @param error_msg
+     */
     function display_error_message(error_msg) {
 
         var form_wrapper = $(document).find('#gm_gallery_submit');
         var error_wrapper = form_wrapper.find('#gm_js_error_wrapper');
+        var error_display = form_wrapper.find('#gm_error_response');
 
-        if ( $(document).find('#gm_error_response').length < 1 )
+        if ( error_display.length < 1 )
         {
             var insert = '<div id="gm_error_response">' + error_msg + '</div>';
             error_wrapper.append(insert);
         } else {
+
+            if (error_msg.localeCompare( error_display.text() ) !== 0) {
+                error_display.empty().append(error_msg);
+            }
             error_wrapper.effect('shake');
         }
     }
