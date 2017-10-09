@@ -327,11 +327,12 @@ function gm_community_gallery_menu()
 
     $admin_title = "Admin Gallery ($gallery_count)";
     $trash_title = "Trash ($trash_count)";
-
+    $opts_title  = 'Gallery Options';
 
     $menu = add_menu_page('GM Community Gallery', 'GM Community Gallery', 'manage_options', 'gm-community-gallery', 'gm_community_admin_gallery' );
     add_submenu_page('gm-community-gallery', $admin_title, $admin_title, 'manage_options', 'gm-community-gallery' );
     $trash_sub = add_submenu_page('gm-community-gallery', $trash_title, $trash_title, 'manage_options', 'gm-community-trash', 'gm_community_admin_trash');
+    $opts_sub  = add_submenu_page('gm-community-gallery', $opts_title, $opts_title, 'manage_options', 'gm-community-options', 'gm_community_admin_options');
 
     add_action( 'admin_init', 'gm_enqueue_admin_js');
     add_action( 'admin_print_styles-' . $menu, 'gm_print_gallery_css_for_admin');
@@ -341,6 +342,10 @@ function gm_community_gallery_menu()
     add_action( 'admin_print_styles-' . $trash_sub, 'gm_print_gallery_css_for_admin');
     add_action( 'admin_print_styles-' . $trash_sub, 'gm_register_settings_css' );
     add_action( 'admin_print_styles-' . $trash_sub, 'gm_print_font_awesome_for_admin' );
+
+    add_action( 'admin_print_styles-' . $opts_sub, 'gm_print_gallery_css_for_admin');
+    add_action( 'admin_print_styles-' . $opts_sub, 'gm_register_settings_css' );
+    add_action( 'admin_print_styles-' . $opts_sub, 'gm_print_font_awesome_for_admin' );
 }
 
 function gm_get_gallery_count($trash = false)
@@ -459,6 +464,169 @@ function gm_community_admin_trash()
     }
 }
 
+function gm_community_admin_options()
+{
+    if ( !current_user_can( 'manage_options' ) )
+    {
+        wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+    }
+    ?>
+    <div class="wrap">
+        <form id="gm_gallery_admin_options_table" method="post" action="options.php">
+
+            <table id="gm_gallery_admin_options_table" class="form-table">
+                <?php   settings_fields('gm_community_gallery_options');  ?>
+                <?php   do_settings_sections('gm-community-options');     ?>
+            </table>
+            <p class="submit">
+                <input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
+            </p>
+        </form>
+    </div>
+    <?php
+}
+
+add_action('admin_init', 'gm_community_gallery_admin_init');
+function gm_community_gallery_admin_init()
+{
+    register_setting('gm_community_gallery_options', 'gm_community_gallery_options', 'gm_community_gallery_validate_settings');
+    add_settings_section('gm_gallery_options_main', 'GM Community Gallery Settings', 'gm_gallery_opts_text', 'gm-community-options');
+
+    add_settings_field('gm_send_notification',     'Send Notifications?',   'gm_show_send_email_input',     'gm-community-options', 'gm_gallery_options_main');
+    add_settings_field('gm_notification_email',     'Notification Email',   'gm_show_email_input',          'gm-community-options', 'gm_gallery_options_main');
+    add_settings_field('gm_max_kb_text_string',     'Max Image Size (kb)',  'gm_show_max_img_input',        'gm-community-options', 'gm_gallery_options_main');
+    add_settings_field('gm_images_per_page_string', 'Images per page:',     'gm_show_per_page_select',      'gm-community-options', 'gm_gallery_options_main');
+    add_settings_field('gm_images_banned_ips',      'Banned IPs:',          'gm_show_banned_ip_textarea',   'gm-community-options', 'gm_gallery_options_main');
+
+}
+
+function gm_gallery_opts_text() {
+    ?>
+    Enter some stuff please.
+    <?php
+}
+
+add_action('admin_notices', 'gm_community_gallery_admin_notices');
+function gm_community_gallery_admin_notices(){
+    settings_errors();
+}
+
+function gm_show_send_email_input() {
+    $options  = get_option('gm_community_gallery_options');
+    $display = isset($options['send_email']) ? intval($options['send_email']) : 0;
+
+    $select = '<select name="gm_community_gallery_options[send_email]">';
+
+    if ($display === 0)
+    {
+        $select .= "<option value='0'>No</option><option value='1'>Yes</option>";
+    } elseif ($display === 1) {
+        $select .= "<option value='0'>No</option><option selected value='1'>Yes</option>";
+    }
+
+    $select .= '</select>';
+
+    echo $select;
+}
+
+function gm_show_email_input() {
+    $options  = get_option('gm_community_gallery_options');
+    $display = isset($options['notification_email']) ? $options['notification_email'] : '';
+
+    echo "<input type='text' name='gm_community_gallery_options[notification_email]' value='$display' >";
+}
+
+function gm_show_max_img_input() {
+    $options  = get_option('gm_community_gallery_options');
+    $display = isset($options['max_img_size']) ? $options['max_img_size'] : '';
+
+    echo "<input type='text' name='gm_community_gallery_options[max_img_size]' value='$display' >";
+}
+
+function gm_show_per_page_select() {
+
+    $options  = get_option('gm_community_gallery_options');
+
+    $display = isset($options['imgs_per_page']) ? $options['imgs_per_page'] : '';
+
+    $select_values = array(10,15,20,25,30);
+
+    $select = '<select name="gm_community_gallery_options[imgs_per_page]">';
+
+    foreach ($select_values as $opt)
+    {
+        $selected = intval($display) == $opt ? ' selected' : '';
+        $select .= "<option value='$opt' $selected>$opt</option>";
+    }
+
+    $select .= '</select>';
+
+    echo $select;
+}
+
+function gm_show_banned_ip_textarea() {
+
+    $options  = get_option('gm_community_gallery_options');
+
+    $display  = isset($options['banned_ips']) ? strip_tags( stripslashes( $options['banned_ips'] ) ) : '';
+
+    $textarea = '<textarea name=gm_community_gallery_options[banned_ips]">';
+
+    $textarea .= $display;
+
+    $textarea .= '</textarea>';
+
+    echo $textarea;
+}
+
+function gm_community_gallery_validate_settings($input )
+{
+    $current = get_option('gm_community_gallery_options');
+
+    $check['send_email']            = strip_tags( intval($input['send_email'] ) );
+    $check['notification_email']    = strip_tags( trim( $input['notification_email'] ) );
+    $check['max_img_size']          = strip_tags( $input['max_img_size'] );
+    $check['imgs_per_page']         = strip_tags( $input['imgs_per_page'] );
+    $check['banned_ips']            = strip_tags( preg_replace( '/\s+/', '', $input['banned_ips'] ) );
+
+    $page_values = array(10,15,20,25,30);
+    $bool_array  = array(1,0);
+
+    $reason = '';
+
+    if ( ! in_array($check['send_email'], $bool_array) )
+    {
+        add_settings_error( 'gm_send_notification', 'gm_community_gallery_text_error', $reason, 'error' );
+    }
+
+    if ($check['notification_email'] !== '' )
+    {
+        if (filter_var($check['notification_email'], FILTER_VALIDATE_EMAIL) === false) {
+            $bad_input = $check['notification_email'];
+            $reason = "You submitted '$bad_input.' That's not a valid email address.<br>";
+            add_settings_error( 'gm_notification_email', 'gm_notification_error', $reason, 'error' );
+        }
+    }
+
+    if (filter_var($check['max_img_size'], FILTER_VALIDATE_INT) === false)
+    {
+        $reason = "Max image size should be an integer.<br>";
+        add_settings_error( 'gm_max_kb_text_string', 'gm_max_size_error', $reason, 'error' );
+    }
+
+    if(!(in_array($check['imgs_per_page'], $page_values)))
+    {
+        $reason = 'Invalid option<br>';
+        add_settings_error( 'gm_images_per_page_string', 'gm_per_page_error', $reason, 'error' );
+    }
+
+    if ($reason !== '')
+    {
+        return $current;
+    }
+
+    return $check;
+}
 
 /* *******************************
  * - Ajax Handler

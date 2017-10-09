@@ -208,6 +208,51 @@
     width: 450px;
 }
 
+/* **********************
+ * Admin Options
+ * **********************/
+
+#wpbody, #wpcontent, #gm_gallery_admin_options_table td {
+    background-color: #ffffff;
+}
+
+#gm_gallery_admin_options_table select, #gm_gallery_admin_options_table input[type="text"], #gm_gallery_admin_options_table textarea {
+    min-width: 300px;
+}
+#gm_gallery_admin_options_table th, #gm_gallery_admin_options_table td {
+    border-left: 1px solid rgba(0,0,0,.3);
+    border-right: 1px solid rgba(0,0,0,.3);
+    border-bottom: 1px solid rgba(0,0,0,.3);
+    padding: 15px;
+}
+.gm_label_text {
+    color: rgba(0,0,0,.8);
+    padding-top: 5px;
+    font-size: 13px;
+    font-weight: normal;
+}
+
+#gm_gallery_admin_options_table tbody:first-child > tr:first-child td,  #gm_gallery_admin_options_table tbody:first-child > tr:first-child th {
+    border-top: 1px solid rgba(0,0,0,.3);
+}
+#gm_gallery_admin_options_table textarea {
+    height: 150px;
+    overflow-y: scroll;
+    margin: 15px 0 15px 0;
+    vertical-align: middle;
+}
+
+h2.gm_admin_header {
+    border-top: 1px solid;
+    border-right: 1px solid;
+    border-left: 1px solid;
+    margin-bottom: 0;
+}
+#gm_gallery_admin_options_table th {
+    background-color: #F5F5F5;
+}
+
+
 @media screen and (max-width: 800px) {
     .image_card img {
         max-height: none;
