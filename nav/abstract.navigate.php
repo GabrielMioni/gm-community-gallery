@@ -247,19 +247,24 @@ abstract class navigate
             return false;
         }
 
+        $options  = get_option('gm_community_gallery_options');
+
+        if ( isset( $options['imgs_per_page'] ) ) {
+            $default = intval($options['imgs_per_page']);
+        } else {
+            $default = 10;
+        }
+
         // Prepare $page and $limit defaults. Must be whole numbers.
         $page  = $page  === false ? 0 : ceil($page);
-        $limit = $limit === false ? 10 : ceil($limit);
-
-        // If $limit is odd for some reason, round it up.
-        $limit_stop  = ($limit % 2 == 0) === true ? $limit : $limit + 1;
+        $limit = $limit === false ? $default : ceil($limit);
 
         // The minimum value for $limit_start is 0.
-        $limit_start = $page -1 <= 0 ? 0 : ($page - 1) * $limit_stop;
+        $limit_start = $page -1 <= 0 ? 0 : ($page - 1) * $limit;
 
         $query .= ' LIMIT %d, %d';
         $args[] = $limit_start;
-        $args[] = $limit_stop;
+        $args[] = $limit;
     }
 
     protected function append_query_trash(&$where_query)

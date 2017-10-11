@@ -81,9 +81,17 @@ class pagination
      */
     protected function set_total_pages($image_count, $limit)
     {
-        $limit = $limit === false ? 10 : ceil($limit);
+        $options  = get_option('gm_community_gallery_options');
 
-        return ceil( $image_count / $limit );
+        if ( isset( $options['imgs_per_page'] ) ) {
+            $default = intval($options['imgs_per_page']);
+        } else {
+            $default = 10;
+        }
+
+//        $limit = $limit === false ? $default : ceil($limit);
+
+        return ceil( $image_count / $default );
     }
 
     /**
