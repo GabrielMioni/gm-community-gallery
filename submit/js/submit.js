@@ -92,7 +92,7 @@
         gm_button.on('click', function (e) {
             e.preventDefault();
 
-            // Prevent multiple submissions
+            // Prevent multiple submissions. The '.gm_clicked' class is removed in add_input_errors().
             if ( gm_button.hasClass('gm_clicked') )
             {
                 return false;
@@ -103,18 +103,11 @@
 
             if ( add_input_errors() === false )
             {
-                // Allow submits again. Do not submit to Ajax
+                // If validation fails, do not submit to Ajax.
                 return false;
             }
 
-            var loading_spinner = '<i class="fa fa-circle-o-notch fa-spin fa-fw"></i><span class="sr-only">Loading...</span>';
-
-            var gif_elm = gm_button.find('#gm_js_loading_gif');
-
-            if (gif_elm.html().length < 1)
-            {
-                gif_elm.append(loading_spinner);
-            }
+            show_spinner(gm_button);
 
             var file    = ($(document).find('#gm_file_input'))[0].files[0];
             var inputs  = form.serialize();
@@ -137,9 +130,20 @@
                 error: function () {
                     display_error_message('There was a problem submitting your image. Please try again later!')
                 }
-
             }); // end ajax
-        });
+
+        }); // end on click
+    }
+
+    function show_spinner(gm_button) {
+        var loading_spinner = '<i class="fa fa-circle-o-notch fa-spin fa-fw"></i><span class="sr-only">Loading...</span>';
+
+        var gif_elm = gm_button.find('#gm_js_loading_gif');
+
+        if (gif_elm.html().length < 1)
+        {
+            gif_elm.append(loading_spinner);
+        }
     }
 
     /**
