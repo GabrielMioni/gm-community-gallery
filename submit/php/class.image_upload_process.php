@@ -33,6 +33,8 @@ class image_upload_process
 
     protected $image_index = 'image';
 
+    protected $file_ext;
+
     public function __construct()
     {
 
@@ -308,7 +310,32 @@ class image_upload_process
             return false;
         }
 
+        $this->send_notification_email($input_data, $image_id);
+
         return true;
+    }
+
+    /**
+     * Check the GM Community Gallery settings and decide whether or not to send a notification email to the
+     * gallery admin.
+     *
+     * @param   array   $input_data     Input data from the upload form.
+     * @param   $image_id   string      ID created whent the image was uploaded.
+     */
+    protected function send_notification_email( array $input_data, $image_id)
+    {
+        $options  = get_option('gm_community_gallery_options');
+
+        if ( isset($options['send_email']) ) {
+
+            if ( intval($options['send_email']) === 1 )
+            {
+                require_once('class.send_email_notification.php');
+
+                $image_ext = $this->input_data['type'];
+                new send_email_notification($input_data, $image_id, $image_ext);
+            }
+        }
     }
 
     /**
@@ -397,6 +424,11 @@ class image_upload_process
         exit();
     }
 
+    /**
+     * Returns an array that can be json encoded for an Ajax call. If image upload failed, include error messages.
+     *
+     * @return array
+     */
     public function return_response()
     {
         $error_msgs = $this->error_msgs;

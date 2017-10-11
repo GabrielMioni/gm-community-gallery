@@ -492,7 +492,7 @@ function gm_community_gallery_admin_init()
     register_setting('gm_community_gallery_options', 'gm_community_gallery_options', 'gm_community_gallery_validate_settings');
     add_settings_section('gm_gallery_options_main', 'GM Community Gallery Settings', 'gm_gallery_opts_text', 'gm-community-options');
 
-    add_settings_field('gm_send_notification',     'Send Notifications?',   'gm_show_send_email_input',     'gm-community-options', 'gm_gallery_options_main');
+    add_settings_field('gm_send_notification',      'Send Notifications?',  'gm_show_send_email_input',     'gm-community-options', 'gm_gallery_options_main');
     add_settings_field('gm_notification_email',     'Notification Email',   'gm_show_email_input',          'gm-community-options', 'gm_gallery_options_main');
     add_settings_field('gm_max_kb_text_string',     'Max Image Size (kb)',  'gm_show_max_img_input',        'gm-community-options', 'gm_gallery_options_main');
     add_settings_field('gm_images_per_page_string', 'Images per page:',     'gm_show_per_page_select',      'gm-community-options', 'gm_gallery_options_main');
