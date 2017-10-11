@@ -98,6 +98,8 @@ h3#gm_title {
     -ms-user-select: none; /* IE10+ */
 }
 
+
+
 #gm_canvas_wrapper {
     display: block;
     height: auto;
