@@ -63,11 +63,12 @@ form#gm-gallery {
     display: inline-block;
 }
 
-/**
-    - JS Uploaded
+/*
+ *  - JS Uploaded
  */
 #gm_gallery_submit {
     max-width: 810px;
+    margin: 15px;
 }
 
 #gm_gallery_submit .gm-error {
