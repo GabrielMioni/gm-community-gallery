@@ -233,8 +233,13 @@ function gm_js_upload_form() {
     // create nonce_field
     $gm_nonce = wp_nonce_field('gm_js_submit');
 
+    // Get max file size.
+    $options  = get_option('gm_community_gallery_options');
+
+    $max_img_kb = isset( $options['max_img_size'] ) ? intval($options['max_img_size']) : 100;
+
     // Localize ajaxurl with protocol
-    $params = array( 'ajaxurl' => admin_url( 'admin-ajax.php', $protocol), 'gm_nonce_field' => $gm_nonce, 'loading_gif' => $gif_url);
+    $params = array( 'ajaxurl' => admin_url( 'admin-ajax.php', $protocol), 'gm_nonce_field' => $gm_nonce, 'loading_gif' => $gif_url, 'max_img_kb' => $max_img_kb);
     wp_localize_script( 'gm_submit', 'gm_submit', $params );
 }
 

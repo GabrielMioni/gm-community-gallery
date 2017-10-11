@@ -224,9 +224,29 @@ class image_upload_process
             return false;
         }
 
+        if ( ! $this->check_file_size($temp_location) )
+        {
+            $error_array[$image_index] = -5;
+            return false;
+        }
+
         return true;
     }
 
+    /**
+     * @param $temp_location    string  Location of the image being checked.
+     * @return bool     Returns true if image is small enough. Else returns false.
+     */
+    function check_file_size($temp_location)
+    {
+        $kilobytes = number_format( filesize($temp_location) / 1024, 2);
+
+        $options  = get_option('gm_community_gallery_options');
+        
+        $max_size = isset( $options['max_img_size'] ) ? intval( $options['max_img_size'] ) : 500;
+
+        return $kilobytes <= $max_size ? true : false;
+    }
 
     /**
      * Builds an array of validation error messages that can be displayed to the user submitting the email.
@@ -261,6 +281,10 @@ class image_upload_process
                 case -4:
                     // The upload failed.
                     $msg = "There was a problem uploading your image. Please try again later.";
+                    break;
+                case -5:
+                    // The uploaded file is too big.
+                    $msg = 'The file you\'ve uploaded is too big.';
                     break;
                 default:
                     // Something is amiss

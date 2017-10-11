@@ -10,7 +10,7 @@
         var form = $(document).find('#gm-gallery');
         form.addClass('gm_js_form');
 
-        var new_input = '<div id="gm_input_wrapper"><input id="gm_file_input" class="gm_full_width" name="image" type="file"></div>';
+        var new_input = '<div id="gm_input_wrapper">'+'<div>Images should be less than ' + gm_submit.max_img_kb +'kbs</div>'+'<input id="gm_file_input" class="gm_full_width" name="image" type="file"></div>';
 
         var text_inputs  = '<div id="gm_text_input_wrapper">';
             text_inputs += '<input id="gm_js_title" name="title" placeholder="Title" type="text">';
@@ -158,14 +158,15 @@
 
             var json_resp = JSON.parse(resp);
             var result = json_resp.result;
+            console.log(json_resp);
 
             switch ( result )
             {
                 case 'success':
-                    display_success_msg();
+                    process_success_msg();
                     break;
                 case 'failed':
-                    display_error_msg(json_resp.messages);
+                    process_error_msg(json_resp.messages);
                     break;
                 default:
                     break;
@@ -200,7 +201,7 @@
     /**
      * Displays a thank you message
      */
-    function display_success_msg() {
+    function process_success_msg() {
 
         var success_msg  = '<div id="gm_success">Thank you! Your image has been uploaded</div>';
 
@@ -219,7 +220,7 @@
      *
      * @param msgs {Object} Messages from the Ajax response.
      */
-    function display_error_msg(msgs) {
+    function process_error_msg(msgs) {
 
         var name_err  = typeof msgs.name  !== 'undefined' ? msgs.name  : '';
         var email_err = typeof msgs.email !== 'undefined' ? msgs.email : '';
@@ -234,7 +235,12 @@
         button.removeClass('clicked');
         button.find('#gm_js_loading_gif').empty();
 
-        display_error_message('Please complete the fields in red');
+        if ( typeof msgs.image !== 'undefined') {
+            console.log(msgs.image);
+            display_error_message( msgs.image );
+        } else {
+            display_error_message('Please complete the fields in red');
+        }
 
         var bad_elms = [];
 
