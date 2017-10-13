@@ -13,10 +13,10 @@
         var new_input = '<div id="gm_input_wrapper">'+'<div>Images should be less than ' + gm_submit.max_img_kb +'kbs</div>'+'<input id="gm_file_input" class="gm_full_width" name="image" type="file"></div>';
 
         var text_inputs  = '<div id="gm_text_input_wrapper">';
-            text_inputs += '<input id="gm_js_title" name="title" placeholder="Title" type="text">';
-            text_inputs += '<input id="gm_js_submitter" name="name" placeholder="Your name" type="text">';
-            text_inputs += '<input id="gm_js_email" name="email" placeholder="Email" type="text">';
-            text_inputs += '<textarea id="gm_js_message" name="message" placeholder="Message" style=""></textarea>';
+            text_inputs += '<input id="gm_js_title" name="title" placeholder="Title" type="text" maxlength="100">';
+            text_inputs += '<input id="gm_js_submitter" name="name" placeholder="Your name" type="text" maxlength="100">';
+            text_inputs += '<input id="gm_js_email" name="email" placeholder="Email" type="text" maxlength="100">';
+            text_inputs += '<textarea id="gm_js_message" name="message" placeholder="Message" style="" maxlength="600"></textarea>';
             text_inputs += '</div>';
 
         var button = '<button id="gm_submit_button" class="" type="button" aria-label="Menu">Upload Image <span id="gm_js_loading_gif"></span></button>';
