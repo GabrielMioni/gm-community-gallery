@@ -35,6 +35,8 @@ class uploader
 
         $this->save_thumb($this->handle, $this->new_id);
         $this->save_large($this->handle, $this->new_id);
+
+        $this->clean_handle($this->handle);
     }
 
     protected function check_file_upload($image_index)
