@@ -96,7 +96,7 @@ function gm_gallery_create_sql_db()
               `email` varchar(100) DEFAULT NULL,
               `ip` varchar(45) DEFAULT NULL,
               `name` varchar(100) DEFAULT NULL,
-              `title` varchar(200) DEFAULT NULL,
+              `title` varchar(100) DEFAULT NULL,
               `message` varchar(600) DEFAULT NULL,
               `tags` varchar(600) DEFAULT NULL,
               `comment` varchar(600) DEFAULT NULL,
@@ -633,6 +633,46 @@ function gm_community_gallery_validate_settings($input )
     return $check;
 }
 
+register_uninstall_hook(__FILE__, 'gm_community_gallery_uninstall');
+function gm_community_gallery_uninstall()
+{
+    global $wpdb;
+
+    $table_name = GM_GALLERY_TABLENAME;
+
+    $drop_gm_query = "DROP TABLE IF EXISTS $table_name";
+
+    $wpdb->query($drop_gm_query);
+
+    delete_option('gm_community_gallery_options');
+
+    $wp_uploads_dir = wp_upload_dir();
+    $wp_uploads_dir_base = $wp_uploads_dir['basedir'];
+    $gm_directory = $wp_uploads_dir_base . '/gm-community-gallery';
+
+    delete_dir($gm_directory);
+}
+
+function delete_dir($dir_path)
+{
+    if (! is_dir($dir_path)){
+        throw new InvalidArgumentException("$dir_path must be a directory");
+    }
+    if (substr($dir_path, strlen($dir_path) - 1, 1) != '/') {
+        $dir_path .= '/';
+    }
+    $files = glob($dir_path . '*', GLOB_MARK);
+    foreach ($files as $file) {
+        if (is_dir($file)) {
+            delete_dir($file);
+        } else {
+            unlink($file);
+        }
+    }
+    rmdir($dir_path);
+}
+
+
 /* *******************************
  * - Ajax Handler
  * *******************************/
@@ -730,5 +770,17 @@ function gm_admin_mass_action()
     {
         require_once('admin/php/class.admin_mass_action.php');
         new \GM_community_gallery\admin\admin_mass_action();
+    }
+}
+
+
+add_action('init', 'gm_test_delete');
+function gm_test_delete()
+{
+    $api_set = isset($_GET['gm_test_delete']);
+
+    if ($api_set === true)
+    {
+        gm_community_gallery_uninstall();
     }
 }
