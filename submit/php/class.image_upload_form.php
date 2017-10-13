@@ -59,28 +59,21 @@ class image_upload_form
         $value_title   = $this->set_input_value('gm_value_titlte');
         $value_message = $this->set_input_value('gm_value_message');
 
-        /* This is just used for testing.
-        echo '<pre>';
-        print_r($_SESSION);
-        echo '</pre>';
-        */
 
         $form  = '<div id="gm_gallery_submit">';
-        $form .= "<form id='gm-gallery' method='post' action='$form_action' enctype='multipart/form-data'>
-                    <label class='gm_full_width' for='name'>Your Name <span class='gm-asterisk'>*</span> $error_name </label>
-                    <input class='gm_full_width' name='name' value='$value_name' type='text'>
-        
+
+        $form .= "<form id='gm-gallery' method='post' action='$form_action' enctype='multipart/form-data'>";
+        $form .= '<script>(function($) { $(\'#gm-gallery form\').hide();}); </script>';
+        $form .=   "<label class='gm_full_width' for='name'>Your Name <span class='gm-asterisk'>*</span> $error_name </label>
+                    <input class='gm_full_width' name='name' value='$value_name' type='text' maxlength='100'>        
                     <label class='gm_full_width' for='email'>Your Email <span class='asterisk'>*</span> $error_email </label>
-                    <input class='gm_full_width' name='email' value='$value_email' type='text'>
-                    
+                    <input class='gm_full_width' name='email' value='$value_email' type='text' maxlength='100' >
                     <label class='gm_full_width' for='title'>Title <span class='asterisk'>*</span> $error_title </label>
-                    <input class='gm_full_width' name='title' value='$value_title' type='text'>
-                    
+                    <input class='gm_full_width' name='title' value='$value_title' type='text' maxlength='100'>
                     <label class='gm_full_width' for='image'>Image <span class='asterisk'>* </span> $error_image </label>
                     <input class='gm_full_width' name='image' value='$value_image' type='file'>
-        
                     <label class='gm_full_width' for='message'>Message <span class='asterisk'>* </span> $error_message </label>
-                    <textarea class='gm_full_width' name='message'>$value_message</textarea>
+                    <textarea class='gm_full_width' name='message' maxlength='600'>$value_message</textarea>
                     <input class='gm_full_width' value='Send' name='submit' type='submit'>
                 </form>";
         $form .= '</div>';
