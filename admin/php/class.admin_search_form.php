@@ -7,9 +7,6 @@
 
 namespace GM_community_gallery\admin;
 
-// use GM_community_gallery\nav\collect_input;
-
-
 /**
  * Builds HTML for the admin search form found at /wp-admin/admin.php?page=gm-community-gallery&edit=3PudKn
  * The form action is set to index.php/gm_gallery_admin_search=1 - This triggers the WordPress init hook, which looks

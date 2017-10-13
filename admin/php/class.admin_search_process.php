@@ -7,8 +7,6 @@
 
 namespace GM_community_gallery\admin;
 
-require_once(GM_GALLERY_DIR . '/nav/abstract.collect_input.php');
-
 /**
  * Accepts $_POST data from the admin search form created in class.admin_search_form.php and organizes
  * the data into a URL query string that is passed back to the admin gallery screen.
