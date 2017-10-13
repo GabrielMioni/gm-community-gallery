@@ -108,6 +108,10 @@ button {
     min-width: 100%;
 }
 
+#gm_submit_button {
+    position: relative;
+}
+
 #gm_preview_wrapper > img {
     box-sizing: border-box;
     display: inline-block;
@@ -141,7 +145,8 @@ button {
 
 #gm_js_loading_gif {
     position: absolute;
-    right: 120px;
+    bottom: 11px;
+    padding-left: 5px;
 }
 
 #gm_js_error_wrapper {
