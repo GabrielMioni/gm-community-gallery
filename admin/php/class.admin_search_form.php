@@ -9,7 +9,6 @@ namespace GM_community_gallery\admin;
 
 // use GM_community_gallery\nav\collect_input;
 
-require_once(GM_GALLERY_DIR . 'nav/abstract.collect_input.php');
 
 /**
  * Builds HTML for the admin search form found at /wp-admin/admin.php?page=gm-community-gallery&edit=3PudKn
