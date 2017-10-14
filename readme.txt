@@ -1,6 +1,6 @@
 === GM Community Gallery ===
 Contributors: Gabriel Mioni
-Tags: gallery, front-end uploader, javascript, ajax
+Tags: gallery, front-end, uploader, image, .gif, .png, .jpg, .jpeg, javascript, ajax
 Requires at least: 3.0.1
 Tested up to: 4.8.1
 Stable tag: 1.0
