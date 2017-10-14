@@ -619,7 +619,6 @@
             {
                 return false;
             }
-            alert(canvas.length);
 
             var active = $(document).find('.gm_img_active');
             var active_a = active.find('a');
