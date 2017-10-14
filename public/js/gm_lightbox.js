@@ -613,16 +613,19 @@
     {
         window.addEventListener( 'orientationchange', function() {
 
-            var canvas = $(document).find('#gm_canvas_wrapper');
+            var canvas = $(document).find('#gm_canvas');
 
-            if ( canvas.length > 0 )
+            if (canvas.length < 1)
             {
-                var active = $(document).find('.gm_img_active');
-                var active_a = active.find('a');
-
-                active.removeClass('gm_img_active');
-                active_a.click();
+                return false;
             }
+            alert(canvas.length);
+
+            var active = $(document).find('.gm_img_active');
+            var active_a = active.find('a');
+
+            active.removeClass('gm_img_active');
+            active_a.click();
 
         }, false);
     }
