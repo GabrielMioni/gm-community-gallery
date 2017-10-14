@@ -1,3 +1,14 @@
+#gm_community_gallery,
+#gm_pagination {
+    width: 1167px;
+/*    text-align: left; */
+    margin: 15px auto;
+}
+
+#gm_community_gallery {
+    text-align: left;
+}
+
 .image_card {
     height: 223px;
 }
@@ -6,7 +17,7 @@
     display: none;
 }
 
-.image_frame > a:hover {
+.image_frame > a.gm_image_hover:hover {
     background-color: rgba(0, 0, 0, 0.8);
     color: white;
 }
@@ -288,6 +299,7 @@ h3#gm_title {
 @media only screen and (max-width: 700px) {
     #gm_community_gallery {
         text-align: center;
+        width: auto;
     }
 
     #gm_canvas {
