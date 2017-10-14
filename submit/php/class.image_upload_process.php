@@ -19,6 +19,9 @@ class image_upload_process
     /** @var bool|null  flag for whether the honeypot input is empty. */
     protected $honey_pot_is_empty = null;
 
+    /** @var array  */
+    protected $gm_community_options;
+
     /** @var bool|null  flag for whether request is Ajax.  */
     protected $is_ajax = null;
 
@@ -37,6 +40,7 @@ class image_upload_process
 
     public function __construct()
     {
+        $this->gm_community_options  = get_option('gm_community_gallery_options');
 
         $this->honey_pot_is_empty    = isset($_POST['covfefe']) ? false : true;
         $this->is_ajax               = isset($_POST['is_ajax']) ? true : false;
@@ -172,6 +176,13 @@ class image_upload_process
      */
     protected function check_image($image_index, array &$error_array)
     {
+        // check Banned IPs.
+        if ( $this->ip_is_banned( $this->input_data['ip'] ) )
+        {
+            $error_array[$image_index] = -6;
+            return false;
+        }
+
         // Make sure $_FILES were submitted
         if (empty($_FILES))
         {
@@ -208,7 +219,6 @@ class image_upload_process
 
         // Examine the actual file name and confirm the extension is an allowed type.
         /** @var array $short_mimes Should be like array('gif', 'jpeg', 'jpg', 'png')*/
-
         $short_mimes = array_keys($this->allowed_mimes);
 
         $extension = substr($file_name, strrpos($file_name, '.') + 1);
@@ -241,11 +251,39 @@ class image_upload_process
     {
         $kilobytes = number_format( filesize($temp_location) / 1024, 2);
 
-        $options  = get_option('gm_community_gallery_options');
+        $gm_community_options  = $this->gm_community_options;
         
-        $max_size = isset( $options['max_img_size'] ) ? intval( $options['max_img_size'] ) : 500;
+        $max_size = isset( $gm_community_options['max_img_size'] ) ? intval( $gm_community_options['max_img_size'] ) : 500;
 
         return $kilobytes <= $max_size ? true : false;
+    }
+
+    /**
+     * Checks the GM Community Gallery settings to see whether the submitter's IP is in the 'Banned IP' list.
+     *
+     * @param $submitter_ip     string
+     * @return bool     True if $submitter_ip is in the banned ip list. Else false.
+     */
+    function ip_is_banned($submitter_ip)
+    {
+        $gm_community_options = $this->gm_community_options;
+
+        if ( ! isset( $gm_community_options['banned_ips'] ) )
+        {
+            return false;
+        }
+
+        // Strip whitespace
+        $banned_ips = preg_replace( '/\s+/', '', $gm_community_options['banned_ips'] );
+
+        $banned_ips = explode(',', $banned_ips);
+
+        if ( in_array($submitter_ip, $banned_ips) )
+        {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -260,6 +298,8 @@ class image_upload_process
 
         foreach ($error_array as $key=>$value)
         {
+            $msg = null;
+
             switch ($value)
             {
                 case 0:
@@ -286,12 +326,19 @@ class image_upload_process
                     // The uploaded file is too big.
                     $msg = 'The file you\'ve uploaded is too big.';
                     break;
+                case -6:
+                    // The submitter's IP address is banned. No need to set an error message, we'll pretend everything is ok.
+                    $msg = 'There was a problem processing your request.';
+                    break;
                 default:
                     // Something is amiss
                     $msg = "The $key input is incorrect.";
                     break;
             }
-            $error_msgs[$key] = $msg;
+
+            if ( $msg !== null) {
+                $error_msgs[$key] = $msg;
+            }
         }
 
         return $error_msgs;
@@ -348,11 +395,11 @@ class image_upload_process
      */
     protected function send_notification_email( array $input_data, $image_id)
     {
-        $options  = get_option('gm_community_gallery_options');
+        $gm_community_options  = $this->gm_community_options;
 
-        if ( isset($options['send_email']) ) {
+        if ( isset($gm_community_options['send_email']) ) {
 
-            if ( intval($options['send_email']) === 1 )
+            if ( intval($gm_community_options['send_email']) === 1 )
             {
                 require_once('class.send_email_notification.php');
 
