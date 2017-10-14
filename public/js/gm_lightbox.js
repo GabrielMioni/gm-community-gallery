@@ -15,12 +15,6 @@
                 return false;
             }
 
-            var old_canvas = $(document).find('#gm_canvas');
-
-            if (old_canvas.length > 0) {
-                old_canvas.remove();
-            }
-
             var elm = $(this);
 
             var thumb;
@@ -613,12 +607,14 @@
     {
         window.addEventListener( 'orientationchange', function() {
 
-            var canvas = $(document).find('#gm_canvas');
+            var old_canvas = $(document).find('#gm_canvas');
 
-            if (canvas.length < 1)
+            if (old_canvas.length < 1)
             {
                 return false;
             }
+
+            old_canvas.remove();
 
             var active = $(document).find('.gm_img_active');
             var active_a = active.find('a');
