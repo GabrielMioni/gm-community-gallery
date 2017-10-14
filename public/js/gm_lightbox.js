@@ -15,6 +15,12 @@
                 return false;
             }
 
+            var old_canvas = $(document).find('#gm_canvas');
+
+            if (old_canvas.length > 0) {
+                old_canvas.remove();
+            }
+
             var elm = $(this);
 
             var thumb;
@@ -609,16 +615,15 @@
 
             var canvas = $(document).find('#gm_canvas_wrapper');
 
-            if ( canvas.length < 1 )
+            if ( canvas.length > 0 )
             {
-                return false;
+                var active = $(document).find('.gm_img_active');
+                var active_a = active.find('a');
+
+                active.removeClass('gm_img_active');
+                active_a.click();
             }
 
-            var active = $(document).find('.gm_img_active');
-            var active_a = active.find('a');
-
-            active.removeClass('gm_img_active');
-            active_a.click();
         }, false);
     }
 
