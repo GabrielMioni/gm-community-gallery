@@ -1,15 +1,9 @@
 /* General GM Community Gallery CSS */
 
-#gm_community_gallery {
-    min-width: 90%;
-    text-align: left;
-}
-
 .image_card {
     background-color: snow;
     border: 1px solid rgba(0, 0, 0, 0.3);
     display: inline-block;
-/*    height: 223px; */
     margin: 5px;
     overflow: hidden;
     text-align: center;
