@@ -51,7 +51,7 @@ class image_upload_process
         $this->input_data['title']   = $this->check_text('title', $this->errors);
         $this->input_data['ip']      = $this->check_ip();
 
-        $this->check_image($this->image_index, $this->errors);
+        $this->check_submission($this->image_index, $this->errors);
 
         $this->error_msgs = $this->build_error_msgs($this->errors);
 
@@ -116,7 +116,7 @@ class image_upload_process
      *
      * @return  string  The IP address.
      */
-    function check_ip()
+    protected function check_ip()
     {
         $ip_address = '';
         if (isset($_SERVER['HTTP_CLIENT_IP']))
@@ -174,7 +174,7 @@ class image_upload_process
      * @param       array           $error_array    Array that holds
      * @return      bool
      */
-    protected function check_image($image_index, array &$error_array)
+    protected function check_submission($image_index, array &$error_array)
     {
         // check Banned IPs.
         if ( $this->ip_is_banned( $this->input_data['ip'] ) )
