@@ -4,7 +4,7 @@
 Plugin Name: GM Community Gallery
 Version: 1.0
 Plugin URI: http://gabrielmioni.com/gm-community-gallery
-Description: Automated accept image files and add them to a WordPress submit
+Description: A gallery and file repository plugin. Features visitor facing Ajax image submission, a robust admin panel and a public gallery. No configuration necessary.
 Author: Gabriel Mioni
 Author URI: http://gabrielmioni.com
 
