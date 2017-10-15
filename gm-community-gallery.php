@@ -674,7 +674,7 @@ function delete_dir($dir_path)
 
 
 /* *******************************
- * - Ajax Handler
+ * - Ajax Image Upload Handler
  * *******************************/
 
 add_action('wp_ajax_nopriv_gm_ajax_submit', 'gm_ajax_submit');
@@ -770,17 +770,5 @@ function gm_admin_mass_action()
     {
         require_once('admin/php/class.admin_mass_action.php');
         new \GM_community_gallery\admin\admin_mass_action();
-    }
-}
-
-
-add_action('init', 'gm_test_delete');
-function gm_test_delete()
-{
-    $api_set = isset($_GET['gm_test_delete']);
-
-    if ($api_set === true)
-    {
-        gm_community_gallery_uninstall();
     }
 }
