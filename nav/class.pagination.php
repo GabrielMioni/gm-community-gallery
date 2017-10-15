@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @package     GM-Community-Gallery
+ * @author      Gabriel Mioni <gabriel@gabrielmioni.com>
+ */
+
 use GM_community_gallery\nav\navigate as navigate;
 
 /**
