@@ -11,6 +11,9 @@ use GM_community_gallery\nav\navigate;
 
 require_once(GM_GALLERY_DIR . '/nav/abstract.navigate.php');
 
+/**
+ * Builds a MySQL query that can be used to produce HTML for display of public gallery/pagination.
+ */
 class public_navigate extends navigate
 {
     public function __construct($show_trash = false)
