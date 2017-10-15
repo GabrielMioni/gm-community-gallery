@@ -11,6 +11,10 @@ require_once(GM_GALLERY_DIR . 'nav/abstract.gallery.php');
 
 use GM_community_gallery\nav\gallery as gallery;
 
+/**
+ * Builds HTML for the public gallery
+ * @package GM_community_gallery\_public
+ */
 class public_gallery extends gallery
 {
     public function __construct(\GM_community_gallery\nav\navigate $navigate)
@@ -22,18 +26,20 @@ class public_gallery extends gallery
     {
         $html = '<div id="gm_community_gallery">';
 
-        // This is the water,
         foreach ($gallery_data as $key=>$image)
         {
             $html .= $this->build_gallery_frame($image);
         }
 
-        // close the #gm_settings_gallery div.
         $html .= '</div>';
 
         return $html;
     }
 
+    /**
+     * @param   array   $image_data     Data for a specific image from the gm_community_gallery MySQL table.
+     * @return  string  HTML to display the image
+     */
     protected function build_gallery_frame(array $image_data)
     {
         $id = $this->set_value($image_data['id']);
@@ -61,7 +67,6 @@ class public_gallery extends gallery
             $image_url .= $gallery_url .'thumbs/' . $jpg;
         }
 
-
         $link_url  = $this->build_url($id);
 
         $div = "<div class='image_card'>
@@ -77,7 +82,6 @@ class public_gallery extends gallery
                     </div>
                 </div>";
 
-        // and this is the well.
         return $div;
     }
 
