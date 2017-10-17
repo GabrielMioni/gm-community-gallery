@@ -1,5 +1,4 @@
 <?php
-
 /*
 Plugin Name: GM Community Gallery
 Version: 1.0
@@ -382,11 +381,14 @@ function gm_community_admin_gallery()
 
     } else {
 
-        $trash_count = gm_get_gallery_count();
+        $gallery_count = gm_get_gallery_count();
 
-        if ($trash_count < 1)
+        if ($gallery_count < 1)
         {
-            echo "Nothing here.";
+            $empty_div  = '<div>Hi. The gallery is empty. You should go setup an image submission form and get some images uploaded.</div>';
+            $empty_div .= '<div>If you\'re new to GM Community Gallery try giving the <a href="http://gabrielmioni.com/gm-community-gallery/">documentation</a> a read.</div>';
+
+            echo $empty_div;
             return false;
         }
 
@@ -431,7 +433,9 @@ function gm_community_admin_trash()
 
         if ($trash_count < 1)
         {
-            echo "Nothing here.";
+            $empty_div  = '<div>Hi. The Trash Gallery is empty.</div>';
+
+            echo $empty_div;
             return false;
         }
 
