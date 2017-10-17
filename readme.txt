@@ -1,5 +1,6 @@
 === GM Community Gallery ===
 Contributors: Gabriel Mioni
+Plugin URI: http://gabrielmioni.com/gm-community-gallery/
 Tags: gallery, front-end, uploader, image, .gif, .png, .jpg, .jpeg, Javascript, Ajax
 Requires at least: 3.0.1
 Tested up to: 4.8.1
